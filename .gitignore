@@ -1,0 +1,7 @@
+scratch/*
+results/*
+data/*
+snapshot/*
+.idea/*
+*.ipynb
+runs/*

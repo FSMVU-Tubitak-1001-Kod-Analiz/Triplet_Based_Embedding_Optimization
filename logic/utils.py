@@ -1,3 +1,6 @@
+import os
+import random
+
 import more_itertools
 import numpy as np
 import torch
@@ -57,3 +60,12 @@ def append_to_path(relative_path):
 
     tb_path = os.path.realpath(relative_path)
     sys.path.append(tb_path)
+
+
+def set_seed(seed=42):
+    random.seed(seed)
+    os.environ['PYHTONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True

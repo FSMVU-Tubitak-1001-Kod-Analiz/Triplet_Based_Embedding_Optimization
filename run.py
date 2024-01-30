@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 import os
 import numpy as np
 import logic
@@ -9,12 +10,19 @@ import logic.utils
 
 
 class Runner:
-    def __init__(self, label_path, file_path, force=False, device=None, title=None):
+    def __init__(self, label_path, file_path, val_ratio, params, force=False, device=None, title=None, output_folder=None):
         self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         self.label_path = label_path
         self.file_path = file_path
         self.title = title
+        self.output_folder = output_folder
+
+        self.val_ratio = val_ratio
+        self.validate = (val_ratio != 0)
+
+        assert params is not None
+        self.params = params
 
         label_extension = os.path.splitext(label_path)[1]
         try:
@@ -47,20 +55,18 @@ class Runner:
 
         label_series = self.labels.label_series
         most_freq = label_series.value_counts().index[smell_range[0]:smell_range[1]]
-        top_indices = np.asarray(label_series[label_series.apply(lambda x:x in list(most_freq))].index)
-
-        print("Smell ratios:")
-        print(label_series[label_series.apply(lambda x:x in list(most_freq))].value_counts(normalize=True))
-
+        top_indices = np.asarray(label_series[label_series.apply(lambda x: x in list(most_freq))].index)
+        
         if shuffle:
-            np.random.RandomState().shuffle(top_indices)
+            print(f"Current seed {np.random.get_state()[1][0]}")
+            np.random.shuffle(top_indices)
 
         self.smell_range = smell_range
         self.smell_names = label_series.value_counts().index[smell_range[0]:smell_range[1]].tolist()
 
         return top_indices
 
-    def run(self, smells: int | tuple[int, int], shuffle=True, fold_size=5, train_batch_size=32, test_batch_size=32):
+    def run(self, smells: int | tuple[int, int], shuffle=False, fold_size=5, train_batch_size=32, test_batch_size=32):
         top_indices = self.__pre_run__(smells, shuffle)
 
         folds = np.array_split(top_indices, fold_size)
@@ -85,9 +91,13 @@ class Runner:
             train_target = logic.Label(self.labels.label_series.iloc[train])
             test_target = logic.Label(self.labels.label_series.iloc[test])
 
-            model_ = logic.models.Model(train_target, data_train, train_batch_size, self.device)
+            if "writer" in self.params.keys():
+                self.params["writer"] = SummaryWriter()
 
-            model_.train_multi_label()
+            model_ = logic.models.ValidationModel(train_target, data_train, self.params,
+                                                  self.val_ratio, self.device)
+
+            model_.train()
 
             predicts = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
                                            test_target.labels, False)
@@ -103,12 +113,19 @@ class Runner:
             folds_as_array.mask[i] = False
             predictions_list.append(predicts)
 
+            self.params["writer"].close()
+
         final_history = {
             "smell_range": str(self.smell_range),
             "smell_names": str(self.smell_names),
             "label_path": str(self.label_path),
             "file_path": str(self.file_path),
             "indices": indices,
+            # "parameters": {
+                # "val_ratio": str(self.val_ratio),
+                # "train_batch_size": str(self.params["train_batch_size"]),
+                # "lr": str(self.params["lr"])
+            # },
             "folds": history_list
         }
 
@@ -119,10 +136,14 @@ class Runner:
 
         now = now.strftime("%Y_%m_%d__%H_%M")
 
-        if os.path.exists("results") and os.path.isdir("results"):
-            folder = "results/" + now + "/"
+        if self.output_folder is not None:
+            if not os.path.exists(self.output_folder):
+                os.mkdir(self.output_folder)
+            folder = os.path.join(self.output_folder, now) + "/"
+        elif os.path.exists("results") and os.path.isdir("results"):
+            folder = os.path.join("results", now) + "/"
         elif os.path.exists("../results") and os.path.isdir("../results"):
-            folder = "../results/" + now + "/"
+            folder = os.path.join("../results", now) + "/"
         else:
             folder = now + "/"
 

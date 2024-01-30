@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 from .label import Label
 
@@ -8,9 +10,21 @@ def read_labels(path):
     return Label(label_series)
 
 
-def read_functions(path):
-    smells = pd.read_csv(path)
-    functions = smells["function"]
-    return functions.tolist()
+def read_functions(path, to_json=False):
+    if path.endswith('.csv'):
+        smells = pd.read_csv(path)
+        functions = smells["function"]
+        if not to_json:  # return list
+            return functions.tolist()
+        else:  # return df
+            return functions.to_json(orient="records", lines=True)
 
+    else:
+        assert path.endswith('.json')
+        labels_file = open(path, 'r').readlines()
+        functions = []
+        for i in labels_file:
+            test_line = json.loads(i)
+            functions.append(test_line["smellKey"])
 
+        return functions

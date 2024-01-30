@@ -24,7 +24,7 @@ class MultiLabelClassifier(nn.Module):
         # out = self.drop(out)
         out = self.linear3(out)
         out = self.act(out)
-        # out = self.drop(out)
+        out = self.drop(out)
         out = self.linear4(out)
         # out = self.act(out)
         return out
