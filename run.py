@@ -26,9 +26,7 @@ class Runner:
 
         label_extension = os.path.splitext(label_path)[1]
         try:
-            if label_extension == '.csv':
-                self.labels = logic.csvreader.read_labels(label_path)
-            elif label_extension == '.json':
+            if label_extension == '.csv' or label_extension == '.json':
                 self.labels = logic.Label(label_path)
             else:
                 raise TypeError('Illegal label path')
@@ -66,7 +64,7 @@ class Runner:
 
         return top_indices
 
-    def run(self, smells: int | tuple[int, int], shuffle=False, fold_size=5, train_batch_size=32, test_batch_size=32):
+    def run(self, smells: int | tuple[int, int], shuffle=False, fold_size=5, test_batch_size=32):
         top_indices = self.__pre_run__(smells, shuffle)
 
         folds = np.array_split(top_indices, fold_size)

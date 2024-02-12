@@ -2,6 +2,7 @@ import json
 
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from .csvreader import read_labels
 
 
 class Label:
@@ -22,13 +23,14 @@ class Label:
 
     def __read_labels__(self, labels):
         if isinstance(labels, str):  # labels is path
-            labels_file = open(labels, 'r').readlines()
-            smells = []
-            for i in labels_file:
-                test_line = json.loads(i)
-                smells.append(test_line["smellKey"])
-
-                self.label_series = pd.Series(smells)
+            # labels_file = open(labels, 'r').readlines()
+            # smells = []
+            # for i in labels_file:
+            #     test_line = json.loads(i)
+            #     smells.append(test_line["smellKey"])
+            #
+            # self.label_series = pd.Series(smells)
+            self.label_series = read_labels(labels)
         else:
             self.label_series = labels.copy()
 

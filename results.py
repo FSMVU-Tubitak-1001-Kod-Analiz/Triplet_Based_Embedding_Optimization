@@ -5,9 +5,23 @@ import logic
 import json
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import pathlib as pl
 
 class Results:
+    @staticmethod
+    def get_latest(folder, label_path):
+
+        latest = 0
+        latest_file = None
+        for i in os.listdir(folder):
+            current_file = pl.Path(os.path.join(os.path.abspath(folder), i))
+            if (current_time := current_file.stat().st_mtime) > latest:
+                latest = current_time
+                latest_file = current_file
+
+        return Results(latest_file, label_path)
+
+
     def __init__(self, result_folder_path, label_path):
         self.result_folder_path = result_folder_path
         if isinstance(label_path, str):
