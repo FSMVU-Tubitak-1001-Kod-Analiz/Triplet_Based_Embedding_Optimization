@@ -164,10 +164,7 @@ def _remove_comments_and_docstrings(source, lang):
 
 
 def build(code_path, file_name, batch_size=64):
-    if code_path.endswith('.csv'):
-        labels = read_labels(code_path)
-    else:
-        labels = Label(code_path)
+    labels = Label(code_path)
     lines = read_functions(code_path)
 
     tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
@@ -175,9 +172,6 @@ def build(code_path, file_name, batch_size=64):
 
     device = "cuda"
     model.to(device)
-
-    # labels = read_labels(code_path)
-    # lines = read_functions(code_path)
 
     examples = []
     labels_array = np.argmax(labels.labels, axis=1)
@@ -203,9 +197,7 @@ def build(code_path, file_name, batch_size=64):
             batch = tuple(t.to(device) for t in batch)
             inputs = {'input_ids': batch[0],
                       'attention_mask': batch[1],
-                      'token_type_ids': None,
-                      # XLM don't use segment_ids
-                      # 'labels': batch[3]
+                      'token_type_ids': None
                       }
             outputs = model(**inputs)
             embeds.append(outputs)
