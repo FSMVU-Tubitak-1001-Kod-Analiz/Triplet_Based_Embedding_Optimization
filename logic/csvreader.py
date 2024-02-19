@@ -30,7 +30,7 @@ def read_labels(path):
 def read_functions(path, to_json=False):
     if path.endswith('.csv'):
         smells = pd.read_csv(path)
-        functions = smells["function"]
+        functions = smells[["function"]]
         if not to_json:  # return list
             return functions.tolist()
         else:  # return df

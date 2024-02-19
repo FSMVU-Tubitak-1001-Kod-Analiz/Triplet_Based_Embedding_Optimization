@@ -128,18 +128,19 @@ class Results:
 
     def __plot_per_epoch_for_folds__(self, function):
         _, ax = Results.__init_axis__(1, 1, figsize=(15, 7.5))
-        ax.set_ylabel("Epoch")
-        ax.set_xlabel("Loss" if "loss" in function.__name__ else "Accuracy")
+        ax.set_xlabel("Epoch")
+        ax.set_ylabel("Loss" if "loss" in function.__name__ else "Accuracy")
         for i in range(self.foldc):
             data = function(i)
             sns.lineplot(data, ax=ax, label=i)
         ax.legend()
+        return ax
 
     def plot_loss_per_epoch_for_folds(self):
-        self.__plot_per_epoch_for_folds__(self.loss_per_epoch_for_fold)
+        return self.__plot_per_epoch_for_folds__(self.loss_per_epoch_for_fold)
 
     def plot_acc_per_epoch_for_folds(self):
-        self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
+        return self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
 
     def acc_per_epoch_for_fold(self, fold):
         fold_data = self.metadata["folds"][fold]
