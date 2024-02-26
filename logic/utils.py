@@ -51,7 +51,7 @@ def predict(model, X, y: np.ndarray, is_multi_label):
         accuracy = np.sum(target == predicted) / len(y)
 
     print("Accuracy is:", accuracy)
-    return predicted_array
+    return predicted_array, accuracy
 
 
 def append_to_path(relative_path):

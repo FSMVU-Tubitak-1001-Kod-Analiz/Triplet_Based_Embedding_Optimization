@@ -121,11 +121,6 @@ class Results:
     def total_accuracy(self):
         return np.sum(self.result_df["predicted"] == self.result_df["target"]) / self.result_df.__len__()
 
-    def loss_per_epoch_for_fold(self, fold):
-        fold_data = self.metadata["folds"][fold]
-        losses = fold_data["losses"]
-        return losses
-
     def __plot_per_epoch_for_folds__(self, function):
         _, ax = Results.__init_axis__(1, 1, figsize=(15, 7.5))
         ax.set_xlabel("Epoch")
@@ -142,9 +137,24 @@ class Results:
     def plot_acc_per_epoch_for_folds(self):
         return self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
 
+    def loss_per_epoch_for_fold(self, fold):
+        fold_data = self.metadata["folds"][fold]
+        losses = fold_data["losses"]
+        return losses
+
+    def val_loss_per_epoch_for_fold(self, fold):
+        fold_data = self.metadata["folds"][fold]
+        losses = fold_data["val_losses"]
+        return losses
+
     def acc_per_epoch_for_fold(self, fold):
         fold_data = self.metadata["folds"][fold]
         losses = fold_data["accuracy"]
+        return losses
+
+    def val_acc_per_epoch_for_fold(self, fold):
+        fold_data = self.metadata["folds"][fold]
+        losses = fold_data["val_accuracy"]
         return losses
 
     def __extract_fold__(self, fold):

@@ -81,7 +81,8 @@ class ValidationModel:
         min_loss = 100
         num_epochs = self.params["num_epochs"]
         prev_loss = 100
-        default_patience = 60
+        default_patience = 40
+        tolerance = 0.0001
         patience = default_patience
 
         self.history = {
@@ -192,7 +193,7 @@ class ValidationModel:
                 min_loss = loss_inner
                 self.best_model = copy.deepcopy(self.classifier)
 
-            if total_loss > prev_loss - 0.000001:
+            if total_loss > prev_loss - tolerance:
                 if patience == 0:
                     print("Training finished early!")
                     self.history["early_finish"] = "True"

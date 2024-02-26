@@ -97,11 +97,12 @@ class Runner:
 
             model_.train()
 
-            predicts = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
+            predicts, test_accuracy = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
                                            test_target.labels, False)
 
             penultimate_history = {
                 "fold": i,
+                "test_accuracy": test_accuracy
             }
 
             penultimate_history.update(model_.history)
@@ -119,11 +120,11 @@ class Runner:
             "label_path": str(self.label_path),
             "file_path": str(self.file_path),
             "indices": indices,
-            # "parameters": {
-                # "val_ratio": str(self.val_ratio),
-                # "train_batch_size": str(self.params["train_batch_size"]),
-                # "lr": str(self.params["lr"])
-            # },
+            "parameters": {
+                "val_ratio": str(self.val_ratio),
+                "train_batch_size": str(self.params["train_batch_size"]),
+                "lr": str(self.params["lr"])
+            },
             "folds": history_list
         }
 
