@@ -92,7 +92,7 @@ class Runner:
             if "writer" in self.params.keys():
                 self.params["writer"] = SummaryWriter()
 
-            model_ = logic.models.ValidationModel(train_target, data_train, self.params,
+            model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
                                                   self.val_ratio, self.device)
 
             model_.train()
