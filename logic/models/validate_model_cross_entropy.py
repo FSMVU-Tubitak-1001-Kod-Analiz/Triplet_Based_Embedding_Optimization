@@ -103,7 +103,7 @@ class ValidationModelCrossEntropy:
             "dataset": str(self.dataset.__class__),
             "loader": str(self.loader),
             "tolerance": tolerance,
-            "weights": str(self.weights.clone().detach().cpu().numpy().tolist())
+            "weights": str(self.weights if self.weights is None else self.weights.clone().detach().cpu().numpy().tolist())
         }
 
         self.best_model = copy.deepcopy(self.classifier)
