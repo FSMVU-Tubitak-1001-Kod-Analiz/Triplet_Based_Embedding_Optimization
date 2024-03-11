@@ -64,7 +64,6 @@ class ValidationModelCrossEntropy:
 
         self.weights = None if "weights" not in self.params.keys() else torch.tensor(self.params["weights"]).to(self.device)
         assert len(self.weights) == output_size_
-
         criterion = nn.CrossEntropyLoss(weight = self.weights)
 
         if self.params["optimizer"] == "SGD":
@@ -103,7 +102,7 @@ class ValidationModelCrossEntropy:
             "dataset": str(self.dataset.__class__),
             "loader": str(self.loader),
             "tolerance": tolerance,
-            "weights": str(self.weights if self.weights is None else self.weights.clone().detach().cpu().numpy().tolist())
+            "weights": str(self.weights)
         }
 
         self.best_model = copy.deepcopy(self.classifier)
