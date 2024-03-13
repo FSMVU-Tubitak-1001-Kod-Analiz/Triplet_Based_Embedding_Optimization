@@ -4,7 +4,8 @@ import os
 
 
 def save_to_file(embeds: list, file_name, save_path=None):
-    embeds_tensor = torch.vstack([i["last_hidden_state"].detach().cpu() for i in embeds])
+    print("yo")
+    embeds_tensor = torch.vstack([i["pooler_output"].detach().cpu() for i in embeds])
     embeds_numpy = embeds_tensor.cpu().detach().numpy()
     if save_path is None:
         parent = 0

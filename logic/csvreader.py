@@ -32,7 +32,7 @@ def read_functions(path, to_json=False):
         smells = pd.read_csv(path)
         functions = smells[["function"]]
         if not to_json:  # return list
-            return functions.tolist()
+            return functions["function"].tolist()
         else:  # return df
             return functions.to_json(orient="records", lines=True)
 

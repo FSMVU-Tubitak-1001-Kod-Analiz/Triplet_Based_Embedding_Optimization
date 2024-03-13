@@ -69,7 +69,7 @@ class ValidationModelCrossEntropy:
         if self.params["optimizer"] == "SGD":
             optimizer = optim.SGD(self.classifier.parameters(), lr=(self.params["lr"]))
         elif self.params["optimizer"] == "Adam":
-            optimizer = optim.Adam(self.classifier.parameters(), lr=(self.params["lr"]))
+            optimizer = optim.Adam(self.classifier.parameters(), lr=(self.params["lr"]), eps=1e-7)
         else:
             raise Exception("Optimizer given is wrong")
 
