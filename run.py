@@ -7,7 +7,7 @@ import logic
 import logic.datasets
 import logic.models
 import logic.utils
-
+from pathlib import Path
 
 class Runner:
     def __init__(self, label_path, file_path, val_ratio, params, force=False, device=None, title=None, output_folder=None):
@@ -15,7 +15,8 @@ class Runner:
 
         self.label_path = label_path
         self.file_path = file_path
-        self.title = title
+
+        self.title = title if title is not None else Path(file_path).stem
         self.output_folder = output_folder
 
         self.val_ratio = val_ratio
@@ -71,6 +72,7 @@ class Runner:
         folds_as_array = np.asarray(folds, dtype=np.ndarray)
         predictions_list = []
         history_list = []
+        general_history = None
         indices = []
 
         for i, _ in enumerate(folds):
@@ -105,6 +107,10 @@ class Runner:
                 "test_accuracy": test_accuracy
             }
 
+            general_history = model_.history["general"]
+
+            model_.history.pop("general")
+
             penultimate_history.update(model_.history)
 
             history_list.append(penultimate_history)
@@ -119,14 +125,18 @@ class Runner:
             "smell_names": str(self.smell_names),
             "label_path": str(self.label_path),
             "file_path": str(self.file_path),
-            "indices": indices,
             "parameters": {
                 "val_ratio": str(self.val_ratio),
                 "train_batch_size": str(self.params["train_batch_size"]),
                 "lr": str(self.params["lr"])
             },
-            "folds": history_list
+
         }
+
+        final_history.update(general_history)
+
+        final_history["indices"] = indices
+        final_history["folds"] = history_list
 
         from datetime import datetime
         import json

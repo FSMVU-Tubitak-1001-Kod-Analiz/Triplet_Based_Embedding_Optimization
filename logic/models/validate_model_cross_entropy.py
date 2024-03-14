@@ -63,8 +63,8 @@ class ValidationModelCrossEntropy:
         self.classifier.train()
 
         self.weights = None if "weights" not in self.params.keys() else torch.tensor(self.params["weights"]).to(self.device)
-        assert len(self.weights) == output_size_
-        criterion = nn.CrossEntropyLoss(weight = self.weights)
+        assert self.weights is None or len(self.weights) == output_size_
+        criterion = nn.CrossEntropyLoss(weight=self.weights)
 
         if self.params["optimizer"] == "SGD":
             optimizer = optim.SGD(self.classifier.parameters(), lr=(self.params["lr"]))
@@ -90,19 +90,21 @@ class ValidationModelCrossEntropy:
             "val_losses": [],
             "val_accuracy": [],
             "epoch_time": [],
-            "patience": default_patience,
-            "max_epochs": num_epochs,
-            "optimizer": str(optimizer),
-            "criterion": str(criterion),
-            "batch_size": self.batch_size,
-            "class_count": self.label.labels.shape[1],
-            "sample_size": len(self.dataset),
-            "classifier": str(self.classifier),
-            "device": str(self.device),
-            "dataset": str(self.dataset.__class__),
-            "loader": str(self.loader),
-            "tolerance": tolerance,
-            "weights": str(self.weights)
+            "general": {
+                "classifier": str(self.classifier),
+                "device": str(self.device),
+                "dataset": str(self.dataset.__class__),
+                "loader": str(self.loader.__class__),
+                "tolerance": tolerance,
+                "weights": str(None if self.weights is None else self.weights.detach().cpu().numpy().tolist()),
+                "patience": default_patience,
+                "max_epochs": num_epochs,
+                "optimizer": str(optimizer),
+                "criterion": str(criterion),
+                "batch_size": self.batch_size,
+                "class_count": self.label.labels.shape[1],
+                "sample_size": len(self.dataset),
+            }
         }
 
         self.best_model = copy.deepcopy(self.classifier)
