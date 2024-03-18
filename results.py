@@ -104,7 +104,6 @@ class Results:
             i.tick_params(axis='y', labelsize=fontsize)
             i.set_xlabel(i.get_xlabel(), fontsize=fontsize)
             i.set_ylabel(i.get_ylabel(), fontsize=fontsize)
-
         return fig_, ax_
 
     def plot_result_graph(self):
