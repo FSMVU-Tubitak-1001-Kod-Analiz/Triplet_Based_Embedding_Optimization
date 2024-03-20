@@ -1,11 +1,23 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import os
+
+from matplotlib.ticker import NullFormatter, FixedLocator
+
 import logic
 import json
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pathlib as pl
+from enum import Enum
+
+
+class Metric(Enum):
+    LOSS = "loss"
+    ACCURACY = "accuracy"
+
 
 class Results:
     @staticmethod
@@ -120,21 +132,93 @@ class Results:
     def total_accuracy(self):
         return np.sum(self.result_df["predicted"] == self.result_df["target"]) / self.result_df.__len__()
 
-    def __plot_per_epoch_for_folds__(self, function):
-        _, ax = Results.__init_axis__(1, 1, figsize=(15, 7.5))
-        ax.set_xlabel("Epoch")
-        ax.set_ylabel("Loss" if "loss" in function.__name__ else "Accuracy")
-        for i in range(self.foldc):
-            data = function(i)
-            sns.lineplot(data, ax=ax, label=i)
-        ax.legend()
-        return ax
+    # def __plot_per_epoch_for_folds__(self, function):
+    #     _, ax = Results.__init_axis__(1, 1, figsize=(15, 7.5))
+    #     ax.set_xlabel("Epoch")
+    #     ax.set_ylabel("Loss" if "loss" in function.__name__ else "Accuracy")
+    #     for i in range(self.foldc):
+    #         data = function(i)
+    #         sns.lineplot(data, ax=ax, label=i)
+    #     ax.legend()
+    #     return ax
+    #
+    # def plot_loss_per_epoch_for_folds(self):
+    #     return self.__plot_per_epoch_for_folds__(self.loss_per_epoch_for_fold)
+    #
+    # def plot_acc_per_epoch_for_folds(self):
+    #     return self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
 
-    def plot_loss_per_epoch_for_folds(self):
-        return self.__plot_per_epoch_for_folds__(self.loss_per_epoch_for_fold)
+    def reflect_for_fold(self, title:Metric, is_val):
+        if title == Metric.LOSS:
+            if is_val:
+                return self.val_loss_per_epoch_for_fold
+            else:
+                return self.loss_per_epoch_for_fold
+        elif title == Metric.ACCURACY:
+            if is_val:
+                return self.val_acc_per_epoch_for_fold
+            else:
+                return self.acc_per_epoch_for_fold
+        else:
+            raise ValueError("Illegal title")
 
-    def plot_acc_per_epoch_for_folds(self):
-        return self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
+    @staticmethod
+    def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
+        def forward(a):
+            return np.power(np.abs(a), 1 / 3)
+
+        def inverse(a):
+            return np.power(a, 3)
+
+        def style(ax_, title):
+            ax_.set_xscale("function", functions=(forward, inverse))
+            ax_.xaxis.set_minor_formatter(NullFormatter())
+
+            ax_.set_xlim([0, 2000])
+            xticks = np.array([25, 100, 1000])
+            xticks = np.concatenate([xticks[xticks < 2000], [2000]])
+
+            ax_.xaxis.set_major_locator(FixedLocator(xticks))
+            ax_: plt.Axes = ax_
+
+            ax_.legend(fontsize=13)
+            ax_.set_title(title, fontdict={"fontsize": 16})
+
+        _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
+
+        assert metric == Metric.LOSS or metric == metric.ACCURACY
+
+        fold_count_min_tl = np.min([len(triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+        fold_count_min_ntl = np.min([len(not_triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+        fold_count_min = min(fold_count_min_tl, fold_count_min_ntl)
+
+        ntl_values = np.mean(
+            np.array([not_triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+        tl_values = np.mean(
+            np.array([triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+
+        plot_title = metric.value
+
+        sns.lineplot(ntl_values, label="original embeddings train " + plot_title, linewidth=1, ax=ax)
+        sns.lineplot(tl_values, label="triplet embeddings train " + plot_title, linewidth=1, ax=ax)
+
+        if do_val:
+            ntl_val_values = np.mean(
+                np.array([not_triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
+                axis=0)
+            tl_val_values = np.mean(
+                np.array([triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]), axis=0)
+            sns.lineplot(ntl_val_values, label="original embeddings validation " + plot_title, ax=ax)
+            sns.lineplot(tl_val_values, label="triplet embeddings validation " + plot_title, ax=ax)
+
+        style(ax, "Training " + plot_title.title() + " per Epoch")
+
+        now = datetime.now()
+        now = now.strftime("%Y_%m_%d__%H_%M")
+        # save_folder
+        save_folder = "/home/eislamoglu/Pictures/accs/accuracy_graph_" + now \
+            if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now
+        plt.savefig(save_folder, dpi=500)
 
     def loss_per_epoch_for_fold(self, fold):
         fold_data = self.metadata["folds"][fold]
@@ -169,4 +253,3 @@ class Results:
     def print_confusion_matrix_for_fold(self, fold):
         fold_df = self.__extract_fold__(fold)
         self.print_confusion_matrix(target=fold_df["target"], predicted=fold_df["predicted"])
-

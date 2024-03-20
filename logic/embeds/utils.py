@@ -4,7 +4,13 @@ import os
 
 
 def save_to_file(embeds: list, file_name, save_path=None):
-    embeds_tensor = torch.vstack([i["pooler_output"].detach().cpu() for i in embeds])
+
+    if "pooler" in file_name:
+        layer_key = "pooler_output"
+    else:
+        layer_key = "last_hidden_state"
+
+    embeds_tensor = torch.vstack([i[layer_key].detach().cpu() for i in embeds])
     embeds_numpy = embeds_tensor.cpu().detach().numpy()
     if save_path is None:
         parent = 0
