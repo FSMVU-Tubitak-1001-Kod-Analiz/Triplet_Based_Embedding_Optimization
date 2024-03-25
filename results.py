@@ -1,3 +1,5 @@
+import zipfile
+from contextlib import redirect_stdout
 from datetime import datetime
 
 import numpy as np
@@ -12,7 +14,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pathlib as pl
 from enum import Enum
-
+from logic import utils
 
 class Metric(Enum):
     LOSS = "loss"
@@ -162,64 +164,6 @@ class Results:
         else:
             raise ValueError("Illegal title")
 
-    @staticmethod
-    def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
-        def forward(a):
-            return np.power(np.abs(a), 1 / 3)
-
-        def inverse(a):
-            return np.power(a, 3)
-
-        def style(ax_, title):
-            ax_.set_xscale("function", functions=(forward, inverse))
-            ax_.xaxis.set_minor_formatter(NullFormatter())
-
-            ax_.set_xlim([0, 2000])
-            xticks = np.array([25, 100, 1000])
-            xticks = np.concatenate([xticks[xticks < 2000], [2000]])
-
-            ax_.xaxis.set_major_locator(FixedLocator(xticks))
-            ax_: plt.Axes = ax_
-
-            ax_.legend(fontsize=13)
-            ax_.set_title(title, fontdict={"fontsize": 16})
-
-        _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
-
-        assert metric == Metric.LOSS or metric == metric.ACCURACY
-
-        fold_count_min_tl = np.min([len(triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
-        fold_count_min_ntl = np.min([len(not_triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
-        fold_count_min = min(fold_count_min_tl, fold_count_min_ntl)
-
-        ntl_values = np.mean(
-            np.array([not_triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
-        tl_values = np.mean(
-            np.array([triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
-
-        plot_title = metric.value
-
-        sns.lineplot(ntl_values, label="original embeddings train " + plot_title, linewidth=1, ax=ax)
-        sns.lineplot(tl_values, label="triplet embeddings train " + plot_title, linewidth=1, ax=ax)
-
-        if do_val:
-            ntl_val_values = np.mean(
-                np.array([not_triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
-                axis=0)
-            tl_val_values = np.mean(
-                np.array([triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]), axis=0)
-            sns.lineplot(ntl_val_values, label="original embeddings validation " + plot_title, ax=ax)
-            sns.lineplot(tl_val_values, label="triplet embeddings validation " + plot_title, ax=ax)
-
-        style(ax, "Training " + plot_title.title() + " per Epoch")
-
-        now = datetime.now()
-        now = now.strftime("%Y_%m_%d__%H_%M")
-        # save_folder
-        save_folder = "/home/eislamoglu/Pictures/accs/accuracy_graph_" + now \
-            if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now
-        plt.savefig(save_folder, dpi=500)
-
     def loss_per_epoch_for_fold(self, fold):
         fold_data = self.metadata["folds"][fold]
         losses = fold_data["losses"]
@@ -253,3 +197,112 @@ class Results:
     def print_confusion_matrix_for_fold(self, fold):
         fold_df = self.__extract_fold__(fold)
         self.print_confusion_matrix(target=fold_df["target"], predicted=fold_df["predicted"])
+
+
+def print_result(triplet_result:Results, not_triplet_result:Results):
+    save_path = "results/print/" + utils.get_now() + ".txt"
+    with open(save_path, "w") as f:
+        with redirect_stdout(f):
+            print("TRIPLET")
+            print("PATH", triplet_result.result_folder_path)
+            print("ACC", triplet_result.total_accuracy())
+            print("PRINT")
+            print(triplet_result.print_confusion_matrix())
+
+            print("\nNOT TRIPLET")
+            print("PATH", not_triplet_result.result_folder_path)
+            print("ACC", not_triplet_result.total_accuracy())
+            print("PRINT")
+            print(not_triplet_result.print_confusion_matrix())
+
+    return save_path
+
+def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
+    def forward(a):
+        return np.power(np.abs(a), 1 / 3)
+
+    def inverse(a):
+        return np.power(a, 3)
+
+    def style(ax_, title):
+        ax_.set_xscale("function", functions=(forward, inverse))
+        ax_.xaxis.set_minor_formatter(NullFormatter())
+
+        ax_.set_xlim([0, 2000])
+        xticks = np.array([25, 100, 1000])
+        xticks = np.concatenate([xticks[xticks < 2000], [2000]])
+
+        ax_.xaxis.set_major_locator(FixedLocator(xticks))
+        ax_: plt.Axes = ax_
+
+        ax_.legend(fontsize=13)
+        ax_.set_title(title, fontdict={"fontsize": 16})
+
+    _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
+
+    assert metric == Metric.LOSS or metric == metric.ACCURACY
+
+    fold_count_min_tl = np.min([len(triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+    fold_count_min_ntl = np.min([len(not_triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+    fold_count_min = min(fold_count_min_tl, fold_count_min_ntl)
+
+    ntl_values = np.mean(
+        np.array([not_triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+    tl_values = np.mean(
+        np.array([triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+
+    plot_title = metric.value
+
+    sns.lineplot(ntl_values, label="original embeddings train " + plot_title, linewidth=1, ax=ax)
+    sns.lineplot(tl_values, label="triplet embeddings train " + plot_title, linewidth=1, ax=ax)
+
+    if do_val:
+        ntl_val_values = np.mean(
+            np.array([not_triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
+            axis=0)
+        tl_val_values = np.mean(
+            np.array([triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]), axis=0)
+        sns.lineplot(ntl_val_values, label="original embeddings validation " + plot_title, ax=ax)
+        sns.lineplot(tl_val_values, label="triplet embeddings validation " + plot_title, ax=ax)
+
+    style(ax, "Training " + plot_title.title() + " per Epoch")
+
+    now = utils.get_now()
+    # save_path
+    save_path = "/home/eislamoglu/Pictures/accs/accuracy_graph_" + now \
+        if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now
+    plt.savefig(save_path, dpi=500)
+
+    return save_path
+
+
+def save_results(triplet_result: Results, not_triplet_result: Results, do_val=False):
+    acc_graph = plot_result(Metric.ACCURACY, do_val, triplet_result, not_triplet_result)
+    loss_graph = plot_result(Metric.LOSS, do_val, triplet_result, not_triplet_result)
+    result_path = print_result(triplet_result, not_triplet_result)
+
+    compress(acc_graph, loss_graph, result_path, zipfile_name=triplet_result.metadata["file_path"].stem)
+
+
+def compress(*file_names, zipfile_name):
+    print("File Paths:")
+    print(file_names)
+
+    # Select the compression mode ZIP_DEFLATED for compression
+    # or zipfile.ZIP_STORED to just store the file
+    compression = zipfile.ZIP_DEFLATED
+
+    # create the zip file first parameter path/name, second mode
+    now = utils.get_now()
+    zf = zipfile.ZipFile("results/archives/" + now + "_" + zipfile_name + ".zip", mode="w")
+    try:
+        for file_name in file_names:
+            # Add file to the zip file
+            # first parameter file to zip, second filename in zip
+            zf.write(file_name, file_name, compress_type=compression)
+
+    except FileNotFoundError as e:
+        print("An error occurred")
+        raise e
+    finally:
+        zf.close()

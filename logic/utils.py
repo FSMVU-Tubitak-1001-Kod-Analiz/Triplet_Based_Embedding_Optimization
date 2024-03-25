@@ -1,5 +1,6 @@
 import os
 import random
+from datetime import datetime
 
 import more_itertools
 import numpy as np
@@ -69,3 +70,8 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
+
+
+def get_now():
+    now = datetime.now()
+    return now.strftime("%Y_%m_%d__%H_%M")
