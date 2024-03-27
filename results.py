@@ -1,3 +1,4 @@
+import pathlib
 import zipfile
 from contextlib import redirect_stdout
 from datetime import datetime
@@ -14,7 +15,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pathlib as pl
 from enum import Enum
+
+import tsne
 from logic import utils
+
 
 class Metric(Enum):
     LOSS = "loss"
@@ -29,10 +33,11 @@ class Results:
 
         for i in os.listdir(folder):
             current_file = pl.Path(os.path.join(os.path.abspath(folder), i))
-            current_time = current_file.stat().st_mtime
 
-            files.append(current_file)
-            mtimes.append(current_time)
+            if i.startswith("2024_"):
+                current_time = current_file.stat().st_mtime
+                files.append(current_file)
+                mtimes.append(current_time)
 
         return Results(np.array(files)[np.array(mtimes).argsort()][at], label_path)
 
@@ -150,7 +155,7 @@ class Results:
     # def plot_acc_per_epoch_for_folds(self):
     #     return self.__plot_per_epoch_for_folds__(self.acc_per_epoch_for_fold)
 
-    def reflect_for_fold(self, title:Metric, is_val):
+    def reflect_for_fold(self, title: Metric, is_val):
         if title == Metric.LOSS:
             if is_val:
                 return self.val_loss_per_epoch_for_fold
@@ -186,7 +191,8 @@ class Results:
 
     def __extract_fold__(self, fold):
         fold_indices = np.cumsum(
-            np.pad([len(i) for i in np.array_split(np.arange(len(self.result_df["target"])), self.foldc)], (1, 0), "constant"))
+            np.pad([len(i) for i in np.array_split(np.arange(len(self.result_df["target"])), self.foldc)], (1, 0),
+                   "constant"))
         return self.result_df.iloc[fold_indices[fold]:fold_indices[fold + 1]]
 
     def get_class_ratios_for_fold(self, fold):
@@ -199,7 +205,7 @@ class Results:
         self.print_confusion_matrix(target=fold_df["target"], predicted=fold_df["predicted"])
 
 
-def print_result(triplet_result:Results, not_triplet_result:Results):
+def print_result(triplet_result: Results, not_triplet_result: Results):
     save_path = "results/print/" + utils.get_now() + ".txt"
     with open(save_path, "w") as f:
         with redirect_stdout(f):
@@ -216,6 +222,7 @@ def print_result(triplet_result:Results, not_triplet_result:Results):
             print(not_triplet_result.print_confusion_matrix())
 
     return save_path
+
 
 def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
     def forward(a):
@@ -269,19 +276,27 @@ def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
 
     now = utils.get_now()
     # save_path
-    save_path = "/home/eislamoglu/Pictures/accs/accuracy_graph_" + now \
-        if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now
+    save_path = ("/home/eislamoglu/Pictures/accs/accuracy_graph_" + now
+                 if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now) + ".png"
     plt.savefig(save_path, dpi=500)
 
     return save_path
 
 
-def save_results(triplet_result: Results, not_triplet_result: Results, do_val=False):
+def save_results(triplet_result: Results, not_triplet_result: Results, do_val=False, do_tsne=False):
     acc_graph = plot_result(Metric.ACCURACY, do_val, triplet_result, not_triplet_result)
     loss_graph = plot_result(Metric.LOSS, do_val, triplet_result, not_triplet_result)
     result_path = print_result(triplet_result, not_triplet_result)
 
-    compress(acc_graph, loss_graph, result_path, zipfile_name=triplet_result.metadata["file_path"].stem)
+    if do_tsne:
+        triplet_path = triplet_result.metadata["file_path"]
+        not_triplet_path = not_triplet_result.metadata["file_path"]
+        triplet_tsne, not_triplet_tsne = tsne.tsne_plot(triplet_path, not_triplet_path, triplet_result.label_path)
+
+        compress(acc_graph, loss_graph, result_path, triplet_tsne, not_triplet_tsne, zipfile_name=pathlib.Path(triplet_result.metadata["file_path"]).stem)
+
+    else:
+        compress(acc_graph, loss_graph, result_path, zipfile_name=pathlib.Path(triplet_result.metadata["file_path"]).stem)
 
 
 def compress(*file_names, zipfile_name):
@@ -295,11 +310,12 @@ def compress(*file_names, zipfile_name):
     # create the zip file first parameter path/name, second mode
     now = utils.get_now()
     zf = zipfile.ZipFile("results/archives/" + now + "_" + zipfile_name + ".zip", mode="w")
+
     try:
         for file_name in file_names:
             # Add file to the zip file
             # first parameter file to zip, second filename in zip
-            zf.write(file_name, file_name, compress_type=compression)
+            zf.write(file_name, os.path.basename(file_name), compress_type=compression)
 
     except FileNotFoundError as e:
         print("An error occurred")

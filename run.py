@@ -124,6 +124,7 @@ class Runner:
             "smell_range": str(self.smell_range),
             "smell_names": str(self.smell_names),
             "label_path": str(self.label_path),
+
             "file_path": str(self.file_path),
             "parameters": {
                 "val_ratio": str(self.val_ratio),
