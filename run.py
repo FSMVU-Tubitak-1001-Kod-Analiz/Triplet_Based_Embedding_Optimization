@@ -91,7 +91,7 @@ class Runner:
             train_target = logic.Label(self.labels.label_series.iloc[train])
             test_target = logic.Label(self.labels.label_series.iloc[test])
 
-            if "writer" in self.params.keys():
+            if "writer" not in self.params.keys():
                 self.params["writer"] = SummaryWriter()
 
             model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
@@ -112,6 +112,8 @@ class Runner:
             model_.history.pop("general")
 
             penultimate_history.update(model_.history)
+
+            torch.save(model_.classifier, open("/home/eislamoglu/hmmmm.pth", "wb"))
 
             history_list.append(penultimate_history)
 
