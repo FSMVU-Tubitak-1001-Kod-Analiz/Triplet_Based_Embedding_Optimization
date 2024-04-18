@@ -130,13 +130,6 @@ class ValidationModelCrossEntropy:
                                   bar_format="{l_bar}{r_bar}")
 
             for i, (data_, labels_) in data_iter:
-                yhat = self.classifier(data_)
-                params["torchviz"](yhat, dict(list(self.classifier.named_parameters())))
-                make_dot(yhat, params=dict(list(self.classifier.named_parameters()))).render("rnn_torchviz",
-                                                                                             format="png")
-                break
-            break
-            """
                 self.classifier.train()
 
                 if self.validate:
@@ -157,6 +150,8 @@ class ValidationModelCrossEntropy:
 
                 # TRAIN
                 code_data_1d = torch.flatten(code_data, start_dim=1) if code_data.ndim > 2 else code_data
+                self.params["torchviz"](code_data_1d, self.classifier)
+                break
                 outputs = self.classifier(code_data_1d)
                 loss = criterion(outputs, code_target)
 
@@ -178,7 +173,7 @@ class ValidationModelCrossEntropy:
                         val_loss += loss.item() if not torch.isnan(loss) else 0
 
                         val_accuracy += torch.sum(torch.argmax(outputs, dim=1) == torch.argmax(val_target, dim=1)).item()
-
+            break
             total_loss = total_loss / len(self.loader)
             accuracy = accuracy / count
             self.writer.add_scalar("Loss", total_loss, epoch)
@@ -220,4 +215,3 @@ class ValidationModelCrossEntropy:
         self.writer.flush()
         self.history["early_finish"] = "False"
         return self.best_model
-        """
