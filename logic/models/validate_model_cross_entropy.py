@@ -109,8 +109,6 @@ class ValidationModelCrossEntropy:
 
         self.best_model = copy.deepcopy(self.classifier)
 
-        from torchviz import make_dot
-
         for epoch in range(num_epochs):
             total_loss = 0
             accuracy = 0
@@ -150,8 +148,6 @@ class ValidationModelCrossEntropy:
 
                 # TRAIN
                 code_data_1d = torch.flatten(code_data, start_dim=1) if code_data.ndim > 2 else code_data
-                self.params["torchviz"](code_data_1d, self.classifier)
-                break
                 outputs = self.classifier(code_data_1d)
                 loss = criterion(outputs, code_target)
 
@@ -173,7 +169,7 @@ class ValidationModelCrossEntropy:
                         val_loss += loss.item() if not torch.isnan(loss) else 0
 
                         val_accuracy += torch.sum(torch.argmax(outputs, dim=1) == torch.argmax(val_target, dim=1)).item()
-            break
+
             total_loss = total_loss / len(self.loader)
             accuracy = accuracy / count
             self.writer.add_scalar("Loss", total_loss, epoch)

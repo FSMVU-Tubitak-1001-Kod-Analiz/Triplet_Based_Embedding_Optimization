@@ -14,7 +14,7 @@ class MultiLabelClassifier(nn.Module):
         self.linear4 = nn.Linear(hidden_input_size2, output_size)
         self.drop = nn.Dropout(0.1)
         self.act = torch.nn.LeakyReLU()
-        # self.act2 = torch.nn.Sigmoid()
+        self.act2 = torch.nn.Softmax(dim=1)
 
     def forward(self, x):
         out = self.linear(x)
@@ -26,5 +26,5 @@ class MultiLabelClassifier(nn.Module):
         out = self.act(out)
         out = self.drop(out)
         out = self.linear4(out)
-        # out = self.act(out)
+        out = self.act2(out)
         return out
