@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import os
 
+import sklearn.metrics
 from matplotlib.ticker import NullFormatter, FixedLocator
 
 import logic
@@ -18,7 +19,7 @@ from enum import Enum
 
 import tsne
 from logic import utils
-
+import sklearn.metrics as metrics
 
 class Metric(Enum):
     LOSS = "loss"
@@ -138,6 +139,9 @@ class Results:
 
     def total_accuracy(self):
         return np.sum(self.result_df["predicted"] == self.result_df["target"]) / self.result_df.__len__()
+
+    def f1(self):
+        return metrics.f1_score(self.result_df["target"], self.result_df["predicted"])
 
     # def __plot_per_epoch_for_folds__(self, function):
     #     _, ax = Results.__init_axis__(1, 1, figsize=(15, 7.5))
