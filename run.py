@@ -9,6 +9,7 @@ import logic.models
 import logic.utils
 from pathlib import Path
 
+
 class Runner:
     def __init__(self, label_path, file_path, val_ratio, params, force=False, device=None, title=None, output_folder=None):
         self.device = device if device is not None else torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -45,7 +46,7 @@ class Runner:
 
     r'''Args: smell_range (int or (int, int)) : which smells to test based on value counts. Single parameter means 
     test only the x most frequent smells, tuple parameter means test the smells between x most frequent and y.'''
-    def __pre_run__(self, smells, shuffle):
+    def __pre_run(self, smells, shuffle):
         if isinstance(smells, tuple):
             assert len(smells) == 2
             smell_range = smells
@@ -65,63 +66,7 @@ class Runner:
 
         return top_indices
 
-    def run(self, smells: int | tuple[int, int], shuffle=False, fold_size=5, test_batch_size=32):
-        top_indices = self.__pre_run__(smells, shuffle)
-
-        folds = np.array_split(top_indices, fold_size)
-        folds_as_array = np.asarray(folds, dtype=np.ndarray)
-        predictions_list = []
-        history_list = []
-        general_history = None
-        indices = []
-
-        for i, _ in enumerate(folds):
-            print(("-" * 20), "Start of fold", i, ("-" * 20))
-
-            folds_as_array = np.ma.array(folds_as_array, mask=False)
-            folds_as_array.mask[i] = True
-
-            train = folds_as_array.compressed() if len(top_indices) % fold_size == 0 else np.concatenate(folds_as_array.compressed())
-            test = folds[i]
-            indices.extend(test.tolist())
-
-            data_train = logic.datasets.LazyDataset(self.file_path, self.device, indices=train)
-            data_test = logic.datasets.LazyDataset(self.file_path, self.device, indices=test)
-
-            train_target = logic.Label(self.labels.label_series.iloc[train])
-            test_target = logic.Label(self.labels.label_series.iloc[test])
-
-            if "writer" not in self.params.keys():
-                self.params["writer"] = SummaryWriter()
-
-            model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
-                                                  self.val_ratio, self.device)
-
-            model_.train()
-
-            predicts, test_accuracy = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
-                                           test_target.labels, False)
-
-            penultimate_history = {
-                "fold": i,
-                "test_accuracy": test_accuracy
-            }
-
-            general_history = model_.history["general"]
-
-            model_.history.pop("general")
-
-            penultimate_history.update(model_.history)
-
-            torch.save(model_.classifier, open("/home/eislamoglu/hmmmm.pth", "wb"))
-
-            history_list.append(penultimate_history)
-
-            folds_as_array.mask[i] = False
-            predictions_list.append(predicts)
-
-            self.params["writer"].close()
-
+    def __save(self, general_history, indices, history_list, predictions_list):
         final_history = {
             "smell_range": str(self.smell_range),
             "smell_names": str(self.smell_names),
@@ -180,3 +125,116 @@ class Runner:
         print("Prediction results saved at", save_at)
         print("Prediction metadata saved at", save_history_at)
         return folder
+
+    def run(self, smells: int | tuple[int, int], shuffle=False, fold_size=5, test_batch_size=32):
+        top_indices = self.__pre_run(smells, shuffle)
+
+        folds = np.array_split(top_indices, fold_size)
+        folds_as_array = np.asarray(folds, dtype=np.ndarray)
+        predictions_list = []
+        history_list = []
+        general_history = None
+        indices = []
+
+        for i, _ in enumerate(folds):
+            print(("-" * 20), "Start of fold", i, ("-" * 20))
+
+            folds_as_array = np.ma.array(folds_as_array, mask=False)
+            folds_as_array.mask[i] = True
+
+            train = folds_as_array.compressed() if len(top_indices) % fold_size == 0 else np.concatenate(folds_as_array.compressed())
+            test = folds[i]
+            indices.extend(test.tolist())
+
+            data_train = logic.datasets.LazyDataset(self.file_path, self.device, indices=train)
+            data_test = logic.datasets.LazyDataset(self.file_path, self.device, indices=test)
+
+            train_target = logic.Label(self.labels.label_series.iloc[train])
+            test_target = logic.Label(self.labels.label_series.iloc[test])
+
+            if "writer" not in self.params.keys():
+                self.params["writer"] = SummaryWriter()
+
+            model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
+                                                  self.val_ratio, self.device)
+
+            model_.train()
+
+            predicts, test_accuracy = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
+                                           test_target.labels, False)
+
+            penultimate_history = {
+                "fold": i,
+                "test_accuracy": test_accuracy
+            }
+
+            general_history = model_.history["general"]
+
+            model_.history.pop("general")
+
+            penultimate_history.update(model_.history)
+
+            # torch.save(model_.classifier, open("/home/eislamoglu/hmmmm.pth", "wb"))
+
+            history_list.append(penultimate_history)
+
+            folds_as_array.mask[i] = False
+            predictions_list.append(predicts)
+
+            self.params["writer"].close()
+
+        self.__save(general_history, indices, history_list, predictions_list)
+
+    def run_single_fold(self, smells: int | tuple[int, int], shuffle=False, test_batch_size=32, ratio=0.25):
+        top_indices = self.__pre_run(smells, shuffle)
+        predictions_list = []
+        history_list = []
+        indices = []
+
+        if 0 < ratio < 1:
+            separator = np.floor(len(top_indices) * ratio).astype(int)
+        elif ratio > 1:
+            separator = ratio
+        else:
+            raise Exception("Illegal Ratio")
+
+        train = np.arange(0, separator)
+        test = np.arange(separator, len(top_indices))
+        indices.extend(test.tolist())
+
+        data_train = logic.datasets.LazyDataset(self.file_path, self.device, indices=train)
+        data_test = logic.datasets.LazyDataset(self.file_path, self.device, indices=test)
+
+        train_target = logic.Label(self.labels.label_series.iloc[train])
+        test_target = logic.Label(self.labels.label_series.iloc[test])
+
+        if "writer" not in self.params.keys():
+            self.params["writer"] = SummaryWriter()
+
+        model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
+                                                              self.val_ratio, self.device)
+
+        model_.train()
+
+        predicts, test_accuracy = logic.utils.predict(model_.best_model,
+                                                      DataLoader(data_test, batch_size=test_batch_size),
+                                                      test_target.labels, False)
+
+        penultimate_history = {
+            "fold": 0,
+            "test_accuracy": test_accuracy
+        }
+
+        general_history = model_.history["general"]
+
+        model_.history.pop("general")
+
+        penultimate_history.update(model_.history)
+
+        history_list.append(penultimate_history)
+
+        predictions_list.append(predicts)
+
+        self.params["writer"].close()
+
+        self.__save(general_history, indices, history_list, predictions_list)
