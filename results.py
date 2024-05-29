@@ -28,7 +28,7 @@ class Metric(Enum):
 
 class Results:
     @staticmethod
-    def get_latest(folder, label_path, at=-1):
+    def get_latest(folder, at=-1):
         files = []
         mtimes = []
 
@@ -40,19 +40,19 @@ class Results:
                 files.append(current_file)
                 mtimes.append(current_time)
 
-        return Results(np.array(files)[np.array(mtimes).argsort()][at], label_path)
+        return Results(np.array(files)[np.array(mtimes).argsort()][at])
 
-    def __init__(self, result_folder_path, label_path):
+    def __init__(self, result_folder_path):
         self.result_folder_path = result_folder_path
-        if isinstance(label_path, str):
-            self.label_path = label_path
-
-        self.labels = logic.Label(label_path)
 
         self._predictions_path = os.path.join(self.result_folder_path, "predictions.npy")
         self._metadata_path = os.path.join(self.result_folder_path, "metadata.json")
 
         self.metadata = json.load(open(self._metadata_path, "r"))
+
+        self.label_path = self.metadata["label_path"]
+
+        self.labels = logic.Label(self.label_path)
 
         self.results_matrix = np.load(self._predictions_path)
         results_array = np.argmax(self.results_matrix, axis=1)
