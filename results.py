@@ -102,10 +102,10 @@ class Results:
         recall = self.__recall_score__(target, predicted)
         f1 = self.__f1_score__(target, predicted)
 
-        print(pd.concat([accuracy, precision, recall, f1], axis=1).T)
+        print((a:=pd.concat([accuracy, precision, recall, f1], axis=1).T).rename(columns={i:j for i, j in enumerate(self.labels.le.inverse_transform(a.columns))}))
         crosstab = pd.crosstab(target, predicted, margins=True)
-        crosstab.columns = list(crosstab.columns[:-1]) + ["Target"]
-        crosstab.index = list(crosstab.index[:-1]) + ["Predicted"]
+        crosstab.columns = list(self.labels.le.inverse_transform([int(i) for i in crosstab.columns[:-1]])) + ["Target"]
+        crosstab.index = list(self.labels.le.inverse_transform([int(i) for i in crosstab.index[:-1]])) + ["Predicted"]
         return crosstab
 
     @staticmethod
