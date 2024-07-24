@@ -17,14 +17,6 @@ def read_labels(path):
         label_series = pd.Series(smells)
 
     return label_series
-    #
-    #
-    #
-    #
-    #
-    # smells = pd.read_csv(path)
-    # label_series = smells["smellKey"]
-    # return Label(label_series)
 
 
 def read_functions(path, to_json=False):
@@ -42,6 +34,6 @@ def read_functions(path, to_json=False):
         functions = []
         for i in labels_file:
             test_line = json.loads(i)
-            functions.append(test_line["smellKey"])
+            functions.append(test_line["function"])
 
         return functions
