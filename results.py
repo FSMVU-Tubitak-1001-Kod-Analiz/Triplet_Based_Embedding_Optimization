@@ -94,7 +94,7 @@ class Results:
         return pd.Series([f1_score(target, predicted, average="macro", labels=[i]) for i in range(self.class_count)],
                          name="F1")
 
-    def print_confusion_matrix(self, target=None, predicted=None):
+    def print_confusion_matrix(self, target=None, predicted=None, rename_cols=False):
         target = self.result_df["target"] if target is None else target
         predicted = self.result_df["predicted"] if predicted is None else predicted
         accuracy = self.__accuracy_score__(target, predicted)
@@ -102,10 +102,14 @@ class Results:
         recall = self.__recall_score__(target, predicted)
         f1 = self.__f1_score__(target, predicted)
 
-        print((a:=pd.concat([accuracy, precision, recall, f1], axis=1).T).rename(columns={i:j for i, j in enumerate(self.labels.le.inverse_transform(a.columns))}))
+        if rename_cols:
+            print((a := pd.concat([accuracy, precision, recall, f1], axis=1).T).rename(columns={i:j for i, j in enumerate(self.labels.le.inverse_transform(a.columns))}))
+        else:
+            print(pd.concat([accuracy, precision, recall, f1], axis=1).T)
         crosstab = pd.crosstab(target, predicted, margins=True)
-        crosstab.columns = list(self.labels.le.inverse_transform([int(i) for i in crosstab.columns[:-1]])) + ["Target"]
-        crosstab.index = list(self.labels.le.inverse_transform([int(i) for i in crosstab.index[:-1]])) + ["Predicted"]
+        if rename_cols:
+            crosstab.columns = list(self.labels.le.inverse_transform([int(i) for i in crosstab.columns[:-1]])) + ["Target"]
+            crosstab.index = list(self.labels.le.inverse_transform([int(i) for i in crosstab.index[:-1]])) + ["Predicted"]
         return crosstab
 
     @staticmethod
@@ -209,39 +213,39 @@ class Results:
         self.print_confusion_matrix(target=fold_df["target"], predicted=fold_df["predicted"])
 
 
-def print_result(triplet_result: Results, not_triplet_result: Results):
+def print_result(lh_result: Results, rh_result: Results):
     save_path = "results/print/" + utils.get_now() + ".txt"
     with open(save_path, "w") as f:
         with redirect_stdout(f):
-            print("TRIPLET")
-            print("PATH", triplet_result.result_folder_path)
-            print("ACC", triplet_result.total_accuracy())
+            print("LEFTHAND")
+            print("PATH", lh_result.result_folder_path)
+            print("ACC", lh_result.total_accuracy())
             print("PRINT")
-            print(triplet_result.print_confusion_matrix())
+            print(lh_result.print_confusion_matrix())
 
-            print("\nNOT TRIPLET")
-            print("PATH", not_triplet_result.result_folder_path)
-            print("ACC", not_triplet_result.total_accuracy())
+            print("\nRIGHTHAND")
+            print("PATH", rh_result.result_folder_path)
+            print("ACC", rh_result.total_accuracy())
             print("PRINT")
-            print(not_triplet_result.print_confusion_matrix())
+            print(rh_result.print_confusion_matrix())
 
     return save_path
 
 
-def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
+def plot_result(metric: Metric, do_val, lh_result, rh_result):
     def forward(a):
         return np.power(np.abs(a), 1 / 3)
 
     def inverse(a):
         return np.power(a, 3)
 
-    def style(ax_, title):
+    def style(ax_, title, lim):
         ax_.set_xscale("function", functions=(forward, inverse))
         ax_.xaxis.set_minor_formatter(NullFormatter())
+        ax_.set_xlim([0, lim])
 
-        ax_.set_xlim([0, 2000])
-        xticks = np.array([25, 100, 1000])
-        xticks = np.concatenate([xticks[xticks < 2000], [2000]])
+        xticks = np.round(np.linspace(0, lim ** (1/3), 4) ** 3).astype(int)
+        # xticks = np.concatenate([xticks[xticks < lim], [lim]])
 
         ax_.xaxis.set_major_locator(FixedLocator(xticks))
         ax_: plt.Axes = ax_
@@ -253,30 +257,30 @@ def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
 
     assert metric == Metric.LOSS or metric == metric.ACCURACY
 
-    fold_count_min_tl = np.min([len(triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
-    fold_count_min_ntl = np.min([len(not_triplet_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
-    fold_count_min = min(fold_count_min_tl, fold_count_min_ntl)
+    fold_count_min_lh = np.min([len(lh_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+    fold_count_min_rh = np.min([len(rh_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
+    fold_count_min = min(fold_count_min_lh, fold_count_min_rh)
 
-    ntl_values = np.mean(
-        np.array([not_triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
-    tl_values = np.mean(
-        np.array([triplet_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+    lh_values = np.mean(
+        np.array([lh_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
+    rh_values = np.mean(
+        np.array([rh_result.reflect_for_fold(metric, False)(i)[:fold_count_min] for i in range(5)]), axis=0)
 
     plot_title = metric.value
 
-    sns.lineplot(ntl_values, label="original embeddings train " + plot_title, linewidth=1, ax=ax)
-    sns.lineplot(tl_values, label="triplet embeddings train " + plot_title, linewidth=1, ax=ax)
+    sns.lineplot(lh_values, label="lefthand embeddings train " + plot_title, linewidth=1, ax=ax)
+    sns.lineplot(rh_values, label="righthand embeddings train " + plot_title, linewidth=1, ax=ax)
 
     if do_val:
-        ntl_val_values = np.mean(
-            np.array([not_triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
+        lh_val_values = np.mean(
+            np.array([lh_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]), axis=0)
+        rh_val_values = np.mean(
+            np.array([rh_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
             axis=0)
-        tl_val_values = np.mean(
-            np.array([triplet_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]), axis=0)
-        sns.lineplot(ntl_val_values, label="original embeddings validation " + plot_title, ax=ax)
-        sns.lineplot(tl_val_values, label="triplet embeddings validation " + plot_title, ax=ax)
+        sns.lineplot(lh_val_values, label="lefthand embeddings validation " + plot_title, ax=ax)
+        sns.lineplot(rh_val_values, label="righthand embeddings validation " + plot_title, ax=ax)
 
-    style(ax, "Training " + plot_title.title() + " per Epoch")
+    style(ax, "Training " + plot_title.title() + " per Epoch", fold_count_min)
 
     now = utils.get_now()
     # save_path
@@ -287,20 +291,20 @@ def plot_result(metric: Metric, do_val, triplet_result, not_triplet_result):
     return save_path
 
 
-def save_results(triplet_result: Results, not_triplet_result: Results, do_val=False, do_tsne=False):
-    acc_graph = plot_result(Metric.ACCURACY, do_val, triplet_result, not_triplet_result)
-    loss_graph = plot_result(Metric.LOSS, do_val, triplet_result, not_triplet_result)
-    result_path = print_result(triplet_result, not_triplet_result)
+def save_results(result_lh: Results, result_rh: Results, do_val=False, do_tsne=False):
+    acc_graph = plot_result(Metric.ACCURACY, do_val, result_lh, result_rh)
+    loss_graph = plot_result(Metric.LOSS, do_val, result_lh, result_rh)
+    result_path = print_result(result_lh, result_rh)
 
     if do_tsne:
-        triplet_path = triplet_result.metadata["file_path"]
-        not_triplet_path = not_triplet_result.metadata["file_path"]
-        triplet_tsne, not_triplet_tsne = tsne.tsne_plot(triplet_path, not_triplet_path, triplet_result.label_path)
+        lh_path = result_lh.metadata["file_path"]
+        rh_path = result_rh.metadata["file_path"]
+        lh_tsne, rh_tsne = tsne.tsne_plot(lh_path, rh_path, result_lh.label_path)
 
-        compress(acc_graph, loss_graph, result_path, triplet_tsne, not_triplet_tsne, zipfile_name=pathlib.Path(triplet_result.metadata["file_path"]).stem)
+        compress(acc_graph, loss_graph, result_path, lh_tsne, rh_tsne, zipfile_name=pathlib.Path(result_lh.metadata["file_path"]).stem)
 
     else:
-        compress(acc_graph, loss_graph, result_path, zipfile_name=pathlib.Path(triplet_result.metadata["file_path"]).stem)
+        compress(acc_graph, loss_graph, result_path, zipfile_name=pathlib.Path(result_lh.metadata["file_path"]).stem)
 
 
 def compress(*file_names, zipfile_name):
@@ -314,13 +318,12 @@ def compress(*file_names, zipfile_name):
     # create the zip file first parameter path/name, second mode
     now = utils.get_now()
     zf = zipfile.ZipFile("results/archives/" + now + "_" + zipfile_name + ".zip", mode="w")
-
     try:
         for file_name in file_names:
             # Add file to the zip file
             # first parameter file to zip, second filename in zip
             zf.write(file_name, os.path.basename(file_name), compress_type=compression)
-
+        print("Zip file created at:", "results/archives/" + now + "_" + zipfile_name + ".zip")
     except FileNotFoundError as e:
         print("An error occurred")
         raise e
