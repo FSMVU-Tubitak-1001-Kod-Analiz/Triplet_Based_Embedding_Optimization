@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data as data
-from torch.utils.tensorboard import SummaryWriter
 import copy
 import tqdm
 import math
@@ -24,7 +23,7 @@ class ValidationModelCrossEntropy:
         assert params is not None
         self.params = params
 
-        self.writer: SummaryWriter = self.params["writer"]
+        self.writer = None if "writer" not in self.params.keys() else self.params["writer"]
 
         # data
         self.batch_size = self.params["train_batch_size"]
@@ -172,8 +171,10 @@ class ValidationModelCrossEntropy:
 
             total_loss = total_loss / len(self.loader)
             accuracy = accuracy / count
-            self.writer.add_scalar("Loss", total_loss, epoch)
-            self.writer.add_scalar("Accuracy", accuracy, epoch)
+            if self.writer:
+                self.writer.add_scalar("Loss", total_loss, epoch)
+                self.writer.add_scalar("Accuracy", accuracy, epoch)
+
             self.history["losses"].append(total_loss)
             self.history["accuracy"].append(accuracy)
             self.history["epoch_time"].append(data_iter.format_dict["elapsed"])
@@ -181,8 +182,10 @@ class ValidationModelCrossEntropy:
             if self.validate:
                 val_loss = val_loss / len(self.loader)
                 val_accuracy = val_accuracy / val_count
-                self.writer.add_scalar("Validation Loss", val_loss, epoch)
-                self.writer.add_scalar("Validation Accuracy", val_accuracy, epoch)
+                if self.writer:
+                    self.writer.add_scalar("Validation Loss", val_loss, epoch)
+                    self.writer.add_scalar("Validation Accuracy", val_accuracy, epoch)
+
                 self.history["val_losses"].append(val_loss)
                 self.history["val_accuracy"].append(val_accuracy)
 
@@ -208,6 +211,7 @@ class ValidationModelCrossEntropy:
                 patience = default_patience
 
         print("Training finished!")
-        self.writer.flush()
+        if self.writer:
+            self.writer.flush()
         self.history["early_finish"] = "False"
         return self.best_model

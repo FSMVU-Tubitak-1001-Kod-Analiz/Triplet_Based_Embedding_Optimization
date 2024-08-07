@@ -213,17 +213,17 @@ class Results:
         self.print_confusion_matrix(target=fold_df["target"], predicted=fold_df["predicted"])
 
 
-def print_result(lh_result: Results, rh_result: Results):
+def print_result(lh_result: Results, rh_result: Results, lh_title=None, rh_title=None):
     save_path = "results/print/" + utils.get_now() + ".txt"
     with open(save_path, "w") as f:
         with redirect_stdout(f):
-            print("LEFTHAND")
+            print("LEFTHAND" if lh_title is None else lh_title.upper())
             print("PATH", lh_result.result_folder_path)
             print("ACC", lh_result.total_accuracy())
             print("PRINT")
             print(lh_result.print_confusion_matrix())
-
-            print("\nRIGHTHAND")
+            print()
+            print("RIGHTHAND" if rh_title is None else rh_title.upper())
             print("PATH", rh_result.result_folder_path)
             print("ACC", rh_result.total_accuracy())
             print("PRINT")
@@ -232,7 +232,7 @@ def print_result(lh_result: Results, rh_result: Results):
     return save_path
 
 
-def plot_result(metric: Metric, do_val, lh_result, rh_result):
+def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_title=None):
     def forward(a):
         return np.power(np.abs(a), 1 / 3)
 
@@ -255,6 +255,9 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result):
 
     _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
 
+    lh_title = lh_title if lh_title is not None else "lefthand embeddings"
+    rh_title = rh_title if rh_title is not None else "righthand embeddings"
+
     assert metric == Metric.LOSS or metric == metric.ACCURACY
 
     fold_count_min_lh = np.min([len(lh_result.reflect_for_fold(metric, False)(i)) for i in range(5)])
@@ -268,8 +271,8 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result):
 
     plot_title = metric.value
 
-    sns.lineplot(lh_values, label="lefthand embeddings train " + plot_title, linewidth=1, ax=ax)
-    sns.lineplot(rh_values, label="righthand embeddings train " + plot_title, linewidth=1, ax=ax)
+    sns.lineplot(lh_values, label=lh_title + " train " + plot_title, linewidth=1, ax=ax)
+    sns.lineplot(rh_values, label=rh_title + " train " + plot_title, linewidth=1, ax=ax)
 
     if do_val:
         lh_val_values = np.mean(
@@ -277,8 +280,8 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result):
         rh_val_values = np.mean(
             np.array([rh_result.reflect_for_fold(metric, True)(i)[:fold_count_min] for i in range(5)]),
             axis=0)
-        sns.lineplot(lh_val_values, label="lefthand embeddings validation " + plot_title, ax=ax)
-        sns.lineplot(rh_val_values, label="righthand embeddings validation " + plot_title, ax=ax)
+        sns.lineplot(lh_val_values, label=lh_title + " validation " + plot_title, ax=ax)
+        sns.lineplot(rh_val_values, label=rh_title + " validation " + plot_title, ax=ax)
 
     style(ax, "Training " + plot_title.title() + " per Epoch", fold_count_min)
 
@@ -291,8 +294,8 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result):
     return save_path
 
 
-def save_results(result_lh: Results, result_rh: Results, do_val=False, do_tsne=False):
-    acc_graph = plot_result(Metric.ACCURACY, do_val, result_lh, result_rh)
+def save_results(result_lh: Results, result_rh: Results, lh_title=None, rh_title=None, do_val=False, do_tsne=False):
+    acc_graph = plot_result(Metric.ACCURACY, do_val, result_lh, result_rh, lh_title, rh_title)
     loss_graph = plot_result(Metric.LOSS, do_val, result_lh, result_rh)
     result_path = print_result(result_lh, result_rh)
 

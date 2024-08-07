@@ -1,6 +1,5 @@
 import torch
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 import os
 import numpy as np
 import logic
@@ -137,7 +136,7 @@ class Runner:
         indices = []
 
         for i, _ in enumerate(folds):
-            print(("-" * 20), "Start of fold", i, ("-" * 20))
+            print(("-" * 20), "Start of fold", f"{i + 1}/{len(folds)}", ("-" * 20))
 
             folds_as_array = np.ma.array(folds_as_array, mask=False)
             folds_as_array.mask[i] = True
@@ -152,8 +151,8 @@ class Runner:
             train_target = logic.Label(self.labels.label_series.iloc[train])
             test_target = logic.Label(self.labels.label_series.iloc[test])
 
-            if "writer" not in self.params.keys():
-                self.params["writer"] = SummaryWriter()
+            # if "writer" not in self.params.keys():
+            #     self.params["writer"] = SummaryWriter()
 
             model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
                                                   self.val_ratio, self.device)
@@ -181,7 +180,8 @@ class Runner:
             folds_as_array.mask[i] = False
             predictions_list.append(predicts)
 
-            self.params["writer"].close()
+            if "writer" in self.params.keys():
+                self.params["writer"].close()
 
         self.__save(general_history, indices, history_list, predictions_list)
 
@@ -208,9 +208,6 @@ class Runner:
         train_target = logic.Label(self.labels.label_series.iloc[train])
         test_target = logic.Label(self.labels.label_series.iloc[test])
 
-        if "writer" not in self.params.keys():
-            self.params["writer"] = SummaryWriter()
-
         model_ = logic.models.ValidationModelCrossEntropy(train_target, data_train, self.params,
                                                               self.val_ratio, self.device)
 
@@ -235,6 +232,7 @@ class Runner:
 
         predictions_list.append(predicts)
 
-        self.params["writer"].close()
+        if "writer" in self.params.keys():
+            self.params["writer"].close()
 
         self.__save(general_history, indices, history_list, predictions_list)
