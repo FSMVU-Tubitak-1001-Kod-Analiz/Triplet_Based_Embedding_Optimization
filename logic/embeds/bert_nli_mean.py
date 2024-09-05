@@ -35,6 +35,6 @@ def build(code_path, file_name, batch_size=128):
     print("Shape of embeddings is", embeds[0][0].shape if batch_size != 1 else embeds[0].shape)
 
     if file_name is None:
-        file_name = "codebert_hidden_state_temp"
+        file_name = "bert_nli_pooler"
 
     save_to_file(embeds, file_name)
