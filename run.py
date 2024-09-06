@@ -90,7 +90,7 @@ class Runner:
 
         now = datetime.now()
 
-        now = now.strftime("%Y_%m_%d__%H_%M")
+        now = now.strftime("%Y_%m_%d__%H_%M_%S")
 
         if self.output_folder is not None:
             if not os.path.exists(self.output_folder):
