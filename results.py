@@ -239,19 +239,19 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
     def inverse(a):
         return np.power(a, 3)
 
-    def style(ax_, title, lim):
+    def style(ax_, title):
         ax_.set_xscale("function", functions=(forward, inverse))
         ax_.xaxis.set_minor_formatter(NullFormatter())
-        ax_.set_xlim([0, lim])
 
-        xticks = np.round(np.linspace(0, lim ** (1/3), 4) ** 3).astype(int)
-        # xticks = np.concatenate([xticks[xticks < lim], [lim]])
+        ax_.set_xlim([0, 2000])
+        xticks = np.array([25, 100, 1000])
+        xticks = np.concatenate([xticks[xticks < 2000], [2000]])
 
         ax_.xaxis.set_major_locator(FixedLocator(xticks))
         ax_: plt.Axes = ax_
 
-        ax_.legend(fontsize=13)
-        ax_.set_title(title, fontdict={"fontsize": 16})
+        ax_.legend(fontsize=13, loc="upper right")
+        # ax_.set_title(title, fontdict={"fontsize": 16})
 
     _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
 
@@ -283,12 +283,15 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
         sns.lineplot(lh_val_values, label=lh_title + " validation " + plot_title, ax=ax)
         sns.lineplot(rh_val_values, label=rh_title + " validation " + plot_title, ax=ax)
 
-    style(ax, "Training " + plot_title.title() + " per Epoch", fold_count_min)
+    style(ax, "Training " + plot_title.title() + " per Epoch")
 
     now = utils.get_now()
     # save_path
     save_path = ("/home/eislamoglu/Pictures/accs/accuracy_graph_" + now
                  if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now) + ".png"
+
+    plt.subplots_adjust(left=0.05, right=0.96, top=0.96, bottom=0.05)
+
     plt.savefig(save_path, dpi=500)
 
     return save_path

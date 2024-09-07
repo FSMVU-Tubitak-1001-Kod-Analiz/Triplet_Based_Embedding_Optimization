@@ -22,28 +22,28 @@ if __name__ == "__main__":
     sys.path.append(log_path)
 
     parameters = {
-        "optimizer": arguments[1],
-        "train_batch_size": int(arguments[2]),
-        "lr": np.power(10., int(arguments[3])),
+        "optimizer": arguments[2],
+        "train_batch_size": int(arguments[3]),
+        "lr": np.power(10., int(arguments[4])),
     }
 
     set_seed()
     print(f"Current seed {np.random.get_state()[1][0]}")
     print(">> Starting hyperparameter tuning run")
 
-    embeds_path = "data/3000_smells_graphcodebert_pooler_output.npy"
+    embeds_path = arguments[1]
     label_path = "data/raw/3000_Smell.json"
 
     current_params = {
         "seed": 42,
         "num_epochs": 2000,
-        "patience": 300
+        "patience": 2000
     }
 
     for index, key in enumerate(parameters.keys()):
         current_params[key] = parameters[key]
 
     print(current_params)
-    runner = run.Runner(label_path, embeds_path, 0.2, device=device, params=current_params, output_folder="results/hyperparam_run15")
+    runner = run.Runner(label_path, embeds_path, 0.2, device=device, params=current_params, output_folder="results/hyperparam_run17")
     runner.run((0, 6), shuffle=True)
     clear_output(wait=True)
