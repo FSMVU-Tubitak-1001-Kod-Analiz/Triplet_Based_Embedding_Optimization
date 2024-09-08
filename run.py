@@ -106,14 +106,10 @@ class Runner:
         if self.title is not None:
             folder = folder[:-1] + "_" + self.title + folder[-1]
 
-        # TODO: GET RID OF THIS
         if os.path.exists(folder):
-            if not os.path.exists(folder + "_2"):
-                os.mkdir(folder + "_2")
-            else:
-                os.mkdir(folder + "_3")
-        else:
-            os.mkdir(folder)
+            folder = folder + "_2"
+
+        os.mkdir(folder)
         save_history_at = folder + "metadata.json"
         save_at = folder + "predictions.npy"
 
