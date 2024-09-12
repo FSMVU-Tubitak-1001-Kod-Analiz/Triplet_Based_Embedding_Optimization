@@ -69,9 +69,9 @@ class Runner:
         final_history = {
             "smell_range": str(self.smell_range),
             "smell_names": str(self.smell_names),
-            "label_path": str(self.label_path),
+            "label_path": str(os.path.abspath(self.label_path)),
 
-            "file_path": str(self.file_path),
+            "file_path": str(os.path.abspath(self.file_path)),
             "parameters": {
                 "val_ratio": str(self.val_ratio),
                 "train_batch_size": str(self.params["train_batch_size"]),
