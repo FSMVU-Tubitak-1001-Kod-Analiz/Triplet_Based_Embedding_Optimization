@@ -7,18 +7,20 @@ from logic.embeds.utils import save_to_file
 from transformers import AutoTokenizer, AutoModel
 
 
+def build_tokens(code_path):
+    tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/bert-base-nli-mean-tokens")
+    lines = read_functions(code_path)
+    encoded_input = tokenizer(lines, padding=True, truncation=True, return_tensors='pt', max_length=510)
+    return encoded_input
+
+
 def build(code_path, file_name, batch_size=128):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/bert-base-nli-mean-tokens")
     model = AutoModel.from_pretrained("sentence-transformers/bert-base-nli-mean-tokens")
-
     model.to(device)
 
-    lines = read_functions(code_path)
-
-    encoded_input = tokenizer(lines, padding=True, truncation=True, return_tensors='pt', max_length=510)
-    token_tensor = encoded_input
+    token_tensor = build_tokens(code_path)
 
     keys = list(token_tensor.keys())
     ds = data_utils.TensorDataset(*[i.to(device) for i in list(token_tensor.values())])

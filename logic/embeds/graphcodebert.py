@@ -10,7 +10,13 @@ import tempfile
 from logic.embeds.utils import save_to_file
 
 
-def build(code_path, file_name, batch_size=64):
+def build_tokens(code_path):
+    """
+    Returns a batch of tuples. Tuple contents are as follows,
+    (code_inputs, attn_mask, position_idx)
+    :param code_path: path of code or whatever
+    :return: dataset
+    """
     if code_path.endswith('.csv'):
         functions = csvreader.read_functions(code_path, True)
         with tempfile.NamedTemporaryFile("w") as tmp:
@@ -20,16 +26,21 @@ def build(code_path, file_name, batch_size=64):
         assert code_path.endswith('.json')
         dataset = build_dataset(code_path)
 
+    return dataset
+
+
+def build(code_path, file_name, batch_size=64):
+    dataset = build_tokens(code_path)
+
     model = RobertaModel.from_pretrained("microsoft/graphcodebert-base")
 
-    device = "cuda"
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = Model(model)
     model.to(device)
 
-    embeds = []
-
     loader = data_utils.DataLoader(dataset, batch_size=batch_size)
 
+    embeds = []
     with torch.no_grad():
         for step, batch in enumerate(tqdm.tqdm(loader)):
             code_inputs = batch[0].to(device)

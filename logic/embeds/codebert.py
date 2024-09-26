@@ -178,15 +178,11 @@ def _remove_comments_and_docstrings(source, lang):
     return '\n'.join(temp)
 
 
-def build(code_path, file_name, batch_size=64):
+def build_tokens(code_path):
     labels = Label(code_path)
     lines = read_functions(code_path)
 
     tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    model = AutoModel.from_pretrained("microsoft/codebert-base")
-
-    device = "cuda"
-    model.to(device)
 
     examples = []
     labels_array = np.argmax(labels.labels, axis=1)
@@ -196,10 +192,21 @@ def build(code_path, file_name, batch_size=64):
 
     features = _convert_examples_to_features(examples, labels_array, 512, tokenizer, "classification")
 
+    return features
+
+
+def build(code_path, file_name, batch_size=64):
+    features = build_tokens(code_path)
+
     all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
     all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
     all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
     all_label_ids = torch.tensor([f.label_id for f in features], dtype=torch.long)
+
+    model = AutoModel.from_pretrained("microsoft/codebert-base")
+
+    device = "cuda"
+    model.to(device)
 
     dataset = data_utils.TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
 
