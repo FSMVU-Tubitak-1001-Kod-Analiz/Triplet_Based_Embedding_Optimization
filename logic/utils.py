@@ -75,3 +75,13 @@ def set_seed(seed=42):
 def get_now():
     now = datetime.now()
     return now.strftime("%Y_%m_%d__%H_%M")
+
+
+def save_annotation(path, annotation):
+    if annotation is None:
+        return
+
+    with open(os.path.join("/home/user/PycharmProjects/Model_Scratch/annotations",
+                           os.path.basename(path) + "__" + get_now()), "w") as file:
+        file.write(annotation)
+        
