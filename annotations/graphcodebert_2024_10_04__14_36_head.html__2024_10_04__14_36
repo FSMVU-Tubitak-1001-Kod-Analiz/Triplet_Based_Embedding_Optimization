@@ -1,0 +1,1 @@
+Trying the custom attention mask for the first time. Every token will only be masked to itself and next 2 tokens.

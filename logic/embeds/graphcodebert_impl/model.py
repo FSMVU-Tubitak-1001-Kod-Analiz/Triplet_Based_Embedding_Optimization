@@ -9,6 +9,7 @@ class Model(nn.Module):
       
     def forward(self, code_inputs=None, attn_mask=None,position_idx=None, nl_inputs=None): 
         if code_inputs is not None:
+
             nodes_mask=position_idx.eq(0)
             token_mask=position_idx.ge(2)        
             inputs_embeddings=self.encoder.embeddings.word_embeddings(code_inputs)
