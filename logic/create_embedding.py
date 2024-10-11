@@ -9,6 +9,7 @@ from logic.embeds import build_tokens_bert_nli_mean, build_tokens_codebert, buil
 #     tmp.flush()
 #     inputs = create_embedding.build_tokens_graphcodebert(tmp.name)
 
+
 def create_embedding_codebert(code_path, file_name, batch_size=64):
     embeds.build_codebert(code_path, file_name, batch_size)
 
