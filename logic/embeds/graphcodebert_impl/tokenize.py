@@ -190,10 +190,9 @@ class TextDataset(torch.utils.data.Dataset):
         prefix = file_path.split('/')[-1][:-6]
 
         self.args = dotdict()
-        self.args.code_length = 256
+        self.args.code_length = 384
         self.args.data_flow_length = 64
-        self.args.lang = 'java'
-        self.args.nl_length = 128
+        self.args.nl_length = 0
         # cache_file = args.output_dir + '/' + prefix + '.pkl'
         # if os.path.exists(cache_file):
         #     self.examples = pickle.load(open(cache_file, 'rb'))
@@ -204,8 +203,16 @@ class TextDataset(torch.utils.data.Dataset):
             for line in f:
                 line = line.strip()
                 js = json.loads(line)
-                js = js["function"]
-                data.append((js, tokenizer, self.args))
+                code = js["function"]
+                self.args.lang = js["smellKey"].split(":")[0]  # first part of smellKey is the language
+
+                if self.args.lang == "py":
+                    self.args.lang = "python"
+
+                if self.args.lang not in ["python", "java", "php"]:
+                    raise Exception("Illegal language value")
+
+                data.append((code, tokenizer, self.args))
         self.examples = []
         for j, i in enumerate(tqdm(data)):
             self.examples.append(convert_examples_to_features(i))
