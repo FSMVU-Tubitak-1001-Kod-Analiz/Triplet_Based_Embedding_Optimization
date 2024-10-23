@@ -1,15 +1,8 @@
-import argparse
-
 import torch
 import os
 import numpy as np
-import sys
 from logic.utils import set_seed
 import run
-import itertools
-import run
-from torch.utils.tensorboard import SummaryWriter
-from IPython.display import clear_output
 
 import sys
 
@@ -18,8 +11,6 @@ if __name__ == "__main__":
     arguments = sys.argv
 
     device = torch.device("cuda")
-    log_path = os.path.realpath("../")
-    sys.path.append(log_path)
 
     parameters = {
         "optimizer": arguments[2],
@@ -32,7 +23,7 @@ if __name__ == "__main__":
     print(">> Starting hyperparameter tuning run")
 
     embeds_path = arguments[1]
-    label_path = "data/raw/3000_Smell.json"
+    label_path = arguments[5]
 
     current_params = {
         "seed": 42,
@@ -43,7 +34,11 @@ if __name__ == "__main__":
     for index, key in enumerate(parameters.keys()):
         current_params[key] = parameters[key]
 
+    output_folder = [i for i in os.listdir("results/") if i.startswith("hyperparam_run")]
+    output_folder = "hyperparam_run" + str(len(output_folder) + 1)
+    print(">> At folder", output_folder)
+
     print(current_params)
-    runner = run.Runner(label_path, embeds_path, 0.2, device=device, params=current_params, output_folder="results/hyperparam_run17")
+    runner = run.Runner(label_path, embeds_path, 0.2, device=device,
+                        params=current_params, output_folder=output_folder)
     runner.run((0, 6), shuffle=True)
-    clear_output(wait=True)

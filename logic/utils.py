@@ -1,9 +1,11 @@
+import json
 import os
 import random
 from datetime import datetime
 
 import more_itertools
 import numpy as np
+import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -81,7 +83,28 @@ def save_annotation(path, annotation):
     if annotation is None:
         return
 
-    with open(os.path.join("/home/user/PycharmProjects/Model_Scratch/annotations",
-                           os.path.basename(path) + "__" + get_now()), "w") as file:
+    if os.path.isfile(path):
+        file_name = os.path.join("/home/user/PycharmProjects/Model_Scratch/annotations",
+                                 os.path.basename(path) + "__" + get_now())
+    else:
+        file_name = os.path.join("/home/user/PycharmProjects/Model_Scratch/annotations",
+                                 path + "__" + get_now())
+    with open(file_name, "w") as file:
         file.write(annotation)
-        
+
+
+def open_smell_file(path):
+    labels = []
+    with open(path, "r") as label:
+        for line in label.readlines():
+            labels.append(json.loads(line))
+    return pd.DataFrame(labels)
+
+
+def save_smell_file(dataframe, output_path):
+    results = []
+    for record in dataframe.to_dict("records"):
+        results.append(json.dumps(record))
+    with open(output_path, "w") as f:
+        f.write("\n".join(results))
+        f.write("\n")

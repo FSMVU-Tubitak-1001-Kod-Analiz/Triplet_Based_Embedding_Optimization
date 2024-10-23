@@ -204,7 +204,7 @@ class TextDataset(torch.utils.data.Dataset):
                 line = line.strip()
                 js = json.loads(line)
                 code = js["function"]
-                self.args.lang = js["smellKey"].split(":")[0]  # first part of smellKey is the language
+                self.args.lang = js["language"]
 
                 if self.args.lang == "py":
                     self.args.lang = "python"
