@@ -6,6 +6,8 @@ import copy
 from logic.utils import save_annotation
 import contextlib
 
+param_keys = ["optimizer", "train_batch_size", "lr"]
+
 
 def call_run(parameters):
     print("Starting run with parameters:", parameters)
@@ -32,12 +34,16 @@ def multi_embeds_parallel():
             executor.submit(call_run, current_params)
 
 
-def hyper_parallel_hyper(embeds_path, label_path):
-    parameters = {
-        "optimizer": ["SGD", "Adam"],
-        "train_batch_size": [32, 64, 128, 256, 512],
-        "lr": np.arange(-6, -3, 1)
-    }
+def hyper_parallel_batched(embeds_path, label_path, parameters=None):
+    if parameters is None:
+        parameters = {
+            "optimizer": ["SGD", "Adam"],
+            "train_batch_size": [32, 64, 128, 256, 512],
+            "lr": np.arange(-6, -3, 1)
+        }
+    else:
+        assert all(i in param_keys for i in parameters.keys())
+
     s = [np.arange(len(i)) for i in parameters.values()]
     perm = list(itertools.product(*s))
 
@@ -58,12 +64,16 @@ def hyper_parallel_hyper(embeds_path, label_path):
     save_annotation("hyperparam_run_" + os.path.basename(embeds_path), "Finished parallel hyperparam run for " + embeds_path)
 
 
-def hyper_parallel(embeds_path, label_path):
-    parameters = {
-        "optimizer": ["SGD", "Adam"],
-        "train_batch_size": [32, 64, 128, 256, 512],
-        "lr": np.arange(-6, -3, 1)
-    }
+def hyper_parallel(embeds_path, label_path, parameters = None):
+    if parameters is None:
+        parameters = {
+            "optimizer": ["SGD", "Adam"],
+            "train_batch_size": [32, 64, 128, 256, 512],
+            "lr": np.arange(-6, -3, 1)
+        }
+    else:
+        assert all(i in param_keys for i in parameters.keys())
+
     s = [np.arange(len(i)) for i in parameters.values()]
     perm = list(itertools.product(*s))
 
@@ -85,15 +95,28 @@ def hyper_parallel(embeds_path, label_path):
 
 if __name__ == "__main__":
     embeds_paths = """data/1500_smells_bert_nli_mean_token_pooler_output.npy
-            data/1500_smells_codebert_pooler_output.npy
-            data/1500_smells_graphcodebert_pooler_output.npy""".split("\n")
+    data/1500_smells_codebert_pooler_output.npy
+    data/1500_smells_graphcodebert_pooler_output.npy""".split("\n")
     graphcodebert_embeds = "data/1500_smells_graphcodebert_hidden_state.npy"
 
     label_path_ = "data/raw/7500_smells_test.json"
 
     for i in embeds_paths:
         print(i)
-        save_annotation("hyperparam_run_" + os.path.basename(i), "Starting parallel hyperparam run for " + i)
-        hyper_parallel(i, label_path_)
+        save_annotation("hyperparam_run_" + os.path.basename(i), "Starting 16 batch size only parallel hyperparam run for " + i)
+        parameters_ = {
+            "optimizer": ["SGD", "Adam"],
+            "train_batch_size": [16],
+            "lr": np.arange(-6, -3, 1)
+        }
+        hyper_parallel(i, label_path_, parameters_)
+
     save_annotation("hyperparam_run_" + os.path.basename(graphcodebert_embeds), "Starting parallel hyperparam run for " + graphcodebert_embeds)
-    hyper_parallel_hyper(graphcodebert_embeds, label_path_)
+
+    parameters_ = {
+        "optimizer": ["SGD", "Adam"],
+        "train_batch_size": [16, 32, 64, 128, 256, 512],
+        "lr": np.arange(-6, -3, 1)
+    }
+    hyper_parallel_batched(graphcodebert_embeds, label_path_)
+

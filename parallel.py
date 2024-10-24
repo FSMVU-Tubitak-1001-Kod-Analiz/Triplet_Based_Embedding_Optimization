@@ -35,7 +35,7 @@ if __name__ == "__main__":
         current_params[key] = parameters[key]
 
     output_folder = [i for i in os.listdir("results/") if i.startswith("hyperparam_run")]
-    output_folder = "hyperparam_run" + str(len(output_folder) + 1)
+    output_folder = "results/hyperparam_run" + str(len(output_folder) + 1)
     print(">> At folder", output_folder)
 
     print(current_params)

@@ -107,9 +107,17 @@ class Runner:
             folder = folder[:-1] + "_" + self.title + folder[-1]
 
         if os.path.exists(folder):
-            folder = folder + "_2"
+            if folder.rfind("/") + 1 == len(folder):  # if last char is /
+                folder = folder[:-1]
+            folder_iter = 2
+            new_folder = folder + "_" + str(folder_iter)
+            while os.path.exists(new_folder):
+                folder_iter += 1
+                new_folder = folder + "_" + str(folder_iter)
+            folder = new_folder + "/"  # restore /
 
         os.mkdir(folder)
+
         save_history_at = folder + "metadata.json"
         save_at = folder + "predictions.npy"
 
