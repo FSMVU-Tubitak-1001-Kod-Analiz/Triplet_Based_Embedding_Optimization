@@ -47,20 +47,40 @@ def hyper_parallel_batched(embeds_path, label_path, parameters=None):
     s = [np.arange(len(i)) for i in parameters.values()]
     perm = list(itertools.product(*s))
 
-    for i in range(0, len(perm), 7):
-        curr_perms = perm[i * 7: (i + 1) * 7]
-        futures = []
-        with ProcessPoolExecutor() as executor:
-            for _, p in enumerate(curr_perms):
-                current_params = {
-                    "embeds_path": embeds_path,
-                    "label_path": label_path
-                }
-                for index, key in enumerate(parameters.keys()):
-                    current_params[key] = parameters[key][p[index]]
+    # TODO: Don't forget to get rid of this
+    perms_skip = [
+        ["SGD", 128, -6.0],
+        ["SGD", 64, -4.0],
+        ["SGD", 64, -6.0],
+        ["SGD", 64, -5.0],
+        ["SGD", 32, -5.0],
+        ["SGD", 32, -6.0],
+        ["SGD", 32, -4.0],
+    ]
 
-                futures.append(executor.submit(call_run, current_params))
-        wait(futures)
+    # for i in range(0, len(perm), 7):
+    #     curr_perms = perm[i * 7: (i + 1) * 7]
+
+    futures = []
+    with ProcessPoolExecutor(max_workers=7) as executor:
+        for _, p in enumerate(perm):
+            current_params = {
+                "embeds_path": embeds_path,
+                "label_path": label_path
+            }
+            for index, key in enumerate(parameters.keys()):
+                current_params[key] = parameters[key][p[index]]
+
+            skip = False
+            for i in perms_skip:
+                if current_params["optimizer"] == i[0] and current_params["train_batch_size"] == i[1] and current_params["lr"] == i[2]:
+                    skip = True
+                    break
+            if skip:
+                continue
+
+            futures.append(executor.submit(call_run, current_params))
+    wait(futures)
     save_annotation("hyperparam_run_" + os.path.basename(embeds_path), "Finished parallel hyperparam run for " + embeds_path)
 
 
@@ -101,15 +121,15 @@ if __name__ == "__main__":
 
     label_path_ = "data/raw/7500_smells_test.json"
 
-    for i in embeds_paths:
-        print(i)
-        save_annotation("hyperparam_run_" + os.path.basename(i), "Starting 16 batch size only parallel hyperparam run for " + i)
-        parameters_ = {
-            "optimizer": ["SGD", "Adam"],
-            "train_batch_size": [16],
-            "lr": np.arange(-6, -3, 1)
-        }
-        hyper_parallel(i, label_path_, parameters_)
+    # for i in embeds_paths:
+    #     print(i)
+    #     save_annotation("hyperparam_run_" + os.path.basename(i), "Starting 16 batch size only parallel hyperparam run for " + i)
+    #     parameters_ = {
+    #         "optimizer": ["SGD", "Adam"],
+    #         "train_batch_size": [16],
+    #         "lr": np.arange(-6, -3, 1)
+    #     }
+    #     hyper_parallel(i, label_path_, parameters_)
 
     save_annotation("hyperparam_run_" + os.path.basename(graphcodebert_embeds), "Starting parallel hyperparam run for " + graphcodebert_embeds)
 
