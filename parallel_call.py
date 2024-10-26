@@ -135,8 +135,8 @@ if __name__ == "__main__":
 
     parameters_ = {
         "optimizer": ["SGD", "Adam"],
-        "train_batch_size": [16, 32, 64, 128, 256, 512],
+        "train_batch_size": [16],
         "lr": np.arange(-6, -3, 1)
     }
-    hyper_parallel_batched(graphcodebert_embeds, label_path_)
+    hyper_parallel_batched(graphcodebert_embeds, label_path_, parameters_)
 
