@@ -103,8 +103,7 @@ class Runner:
         else:
             folder = now + "/"
 
-        if self.title is not None:
-            folder = folder[:-1] + "_" + self.title + folder[-1]
+        folder = folder[:-1] + "_" + self.title + folder[-1]
 
         if os.path.exists(folder):
             if folder.rfind("/") + 1 == len(folder):  # if last char is /

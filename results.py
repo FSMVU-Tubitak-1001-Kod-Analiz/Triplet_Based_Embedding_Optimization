@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import pathlib as pl
 from enum import Enum
 
-import tsne
+from tsne import TSNECreator
 from logic import utils
 import sklearn.metrics as metrics
 
@@ -250,7 +250,10 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
         ax_.xaxis.set_major_locator(FixedLocator(xticks))
         ax_: plt.Axes = ax_
 
-        ax_.legend(fontsize=13, loc="upper right")
+        if metric == Metric.LOSS:
+            ax_.legend(fontsize=13, loc="upper right")
+        elif metric == Metric.ACCURACY:
+            ax_.legend(fontsize=13, loc="lower right")
         # ax_.set_title(title, fontdict={"fontsize": 16})
 
     _, ax = Results.__init_axis__(1, 1, (12, 8.5), fontsize=18)
@@ -299,14 +302,13 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
 
 def save_results(result_lh: Results, result_rh: Results, lh_title=None, rh_title=None, do_val=False, do_tsne=False):
     acc_graph = plot_result(Metric.ACCURACY, do_val, result_lh, result_rh, lh_title, rh_title)
-    loss_graph = plot_result(Metric.LOSS, do_val, result_lh, result_rh)
-    result_path = print_result(result_lh, result_rh)
+    loss_graph = plot_result(Metric.LOSS, do_val, result_lh, result_rh, lh_title, rh_title)
+    result_path = print_result(result_lh, result_rh, lh_title, rh_title)
 
     if do_tsne:
         lh_path = result_lh.metadata["file_path"]
         rh_path = result_rh.metadata["file_path"]
-        lh_tsne, rh_tsne = tsne.tsne_plot(lh_path, rh_path, result_lh.label_path)
-
+        lh_tsne, rh_tsne = TSNECreator.create_from_pair(lh_path, rh_path, result_lh.label_path)
         compress(acc_graph, loss_graph, result_path, lh_tsne, rh_tsne, zipfile_name=pathlib.Path(result_lh.metadata["file_path"]).stem)
 
     else:
