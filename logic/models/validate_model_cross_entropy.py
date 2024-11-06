@@ -6,8 +6,8 @@ import torch.utils.data as data
 import copy
 import tqdm
 import math
-
-from logic import Label, peek, SimpleClassifier, MultiLabelClassifier
+from code_utils.utils import peek
+from logic import Label, SimpleClassifier, MultiLabelClassifier
 
 
 # noinspection PyTypeChecker

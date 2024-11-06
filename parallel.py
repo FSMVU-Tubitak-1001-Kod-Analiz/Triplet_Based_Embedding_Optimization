@@ -1,7 +1,7 @@
 import torch
 import os
 import numpy as np
-from logic.utils import set_seed
+from code_utils.utils import set_seed
 import run
 
 import sys
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     current_params = {
         "seed": 42,
-        "num_epochs": 2000,
+        "num_epochs": 500,
         "patience": 2000
     }
 

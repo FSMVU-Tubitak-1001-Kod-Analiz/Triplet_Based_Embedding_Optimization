@@ -5,7 +5,7 @@ import numpy as np
 import logic
 import logic.datasets
 import logic.models
-import logic.utils
+import code_utils.utils
 from pathlib import Path
 
 
@@ -169,7 +169,7 @@ class Runner:
 
             model_.train()
 
-            predicts, test_accuracy = logic.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
+            predicts, test_accuracy = code_utils.utils.predict(model_.best_model, DataLoader(data_test, batch_size=test_batch_size),
                                            test_target.labels, False)
 
             penultimate_history = {
@@ -223,7 +223,7 @@ class Runner:
 
         model_.train()
 
-        predicts, test_accuracy = logic.utils.predict(model_.best_model,
+        predicts, test_accuracy = code_utils.utils.predict(model_.best_model,
                                                       DataLoader(data_test, batch_size=test_batch_size),
                                                       test_target.labels, False)
 
