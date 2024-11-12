@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 import pathlib as pl
 from enum import Enum
 
-from tsne import TSNECreator
-from logic import utils
+from triplet_net.tsne import TSNECreator
+import code_utils.utils
 import sklearn.metrics as metrics
 
 class Metric(Enum):
@@ -214,7 +214,7 @@ class Results:
 
 
 def print_result(lh_result: Results, rh_result: Results, lh_title=None, rh_title=None):
-    save_path = "results/print/" + utils.get_now() + ".txt"
+    save_path = "results/print/" + code_utils.get_now() + ".txt"
     with open(save_path, "w") as f:
         with redirect_stdout(f):
             print("LEFTHAND" if lh_title is None else lh_title.upper())
@@ -288,7 +288,7 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
 
     style(ax, "Training " + plot_title.title() + " per Epoch")
 
-    now = utils.get_now()
+    now = code_utils.get_now()
     # save_path
     save_path = ("/home/eislamoglu/Pictures/accs/accuracy_graph_" + now
                  if metric == Metric.ACCURACY else "/home/eislamoglu/Pictures/losses/loss_graph_" + now) + ".png"
@@ -324,7 +324,7 @@ def compress(*file_names, zipfile_name):
     compression = zipfile.ZIP_DEFLATED
 
     # create the zip file first parameter path/name, second mode
-    now = utils.get_now()
+    now = code_utils.get_now()
     zf = zipfile.ZipFile("results/archives/" + now + "_" + zipfile_name + ".zip", mode="w")
     try:
         for file_name in file_names:

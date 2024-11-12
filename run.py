@@ -7,6 +7,7 @@ import logic.datasets
 import logic.models
 import code_utils.utils
 from pathlib import Path
+import json
 
 
 class Runner:
@@ -85,12 +86,7 @@ class Runner:
         final_history["indices"] = indices
         final_history["folds"] = history_list
 
-        from datetime import datetime
-        import json
-
-        now = datetime.now()
-
-        now = now.strftime("%Y_%m_%d__%H_%M_%S")
+        now = code_utils.utils.get_now()
 
         if self.output_folder is not None:
             if not os.path.exists(self.output_folder):

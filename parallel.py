@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     current_params = {
         "seed": 42,
-        "num_epochs": 500,
+        "num_epochs": 2000,
         "patience": 2000
     }
 
