@@ -18,10 +18,11 @@ def call_run(parameters):
 
 def multi_embeds_parallel():
     embeds = [
-        "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_12__22_29_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-        "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_12__22_33_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-        "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_12__23_08_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_06_17_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_12_47_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_57_20_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
     ]
+
     parameters = {
         "optimizer": "Adam",
         "train_batch_size": 256,
