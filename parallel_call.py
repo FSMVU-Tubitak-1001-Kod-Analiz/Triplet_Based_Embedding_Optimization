@@ -18,9 +18,9 @@ def call_run(parameters):
 
 def multi_embeds_parallel():
     embeds = [
-         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_06_17_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_12_47_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_13__16_57_20_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
+             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_27_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_32_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_45_37_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
     ]
 
     parameters = {
