@@ -18,9 +18,9 @@ def call_run(parameters):
 
 def multi_embeds_parallel():
     embeds = [
-             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_27_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_32_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
-             "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_45_37_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_27_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_21_32_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy",
+         "/home/eislamoglu/PycharmProjects/siamese-triplet/results/triplet_2024_11_14__15_45_37_7500_smells_codebert_pooler_output/test_embeds_triplet_output.npy"
     ]
 
     parameters = {
@@ -50,15 +50,14 @@ def hyper_parallel_batched(embeds_path, label_path, parameters=None):
     s = [np.arange(len(i)) for i in parameters.values()]
     perm = list(itertools.product(*s))
 
-    # TODO: Don't forget to get rid of this
     perms_skip = [
-        ["SGD", 128, -6.0],
-        ["SGD", 64, -4.0],
-        ["SGD", 64, -6.0],
-        ["SGD", 64, -5.0],
-        ["SGD", 32, -5.0],
-        ["SGD", 32, -6.0],
-        ["SGD", 32, -4.0],
+        # ["SGD", 128, -6.0],
+        # ["SGD", 64, -4.0],
+        # ["SGD", 64, -6.0],
+        # ["SGD", 64, -5.0],
+        # ["SGD", 32, -5.0],
+        # ["SGD", 32, -6.0],
+        # ["SGD", 32, -4.0],
     ]
 
     # for i in range(0, len(perm), 7):
@@ -87,7 +86,7 @@ def hyper_parallel_batched(embeds_path, label_path, parameters=None):
     save_annotation("hyperparam_run_" + os.path.basename(embeds_path), "Finished parallel hyperparam run for " + embeds_path)
 
 
-def hyper_parallel(embeds_path, label_path, parameters = None):
+def hyper_parallel(embeds_path, label_path, parameters=None):
     if parameters is None:
         parameters = {
             "optimizer": ["SGD", "Adam"],
