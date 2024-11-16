@@ -51,15 +51,15 @@ def call_parallel(embeds_paths, label_path, parameters=None):
 
 
 def call_siamese_triplets():
-    embeds_folders = """/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__03_35_16_7500_smells_bert_nli_mean_token_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__03_35_49_7500_smells_graphcodebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__03_36_10_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__04_30_43_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__04_35_53_7500_smells_bert_nli_mean_token_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__04_48_18_7500_smells_graphcodebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__05_31_01_7500_smells_graphcodebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__05_36_53_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/12/triplet_2024_11_15__05_43_08_7500_smells_bert_nli_mean_token_pooler_output""".split("\n")
+    embeds_folders = """/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_21_01_7500_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_21_43_7500_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_22_31_7500_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_22_45_7500_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_23_51_7500_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_29_31_7500_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_50_04_7500_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_53_48_7500_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_53_59_7500_smells_bert_nli_mean_token_pooler_output""".split("\n")
 
     embed_type = "test"
     embed_name = embed_type + "_embeds_triplet_output.npy"
