@@ -13,7 +13,7 @@ def call_run(call_str):
     os.system(call_str)
 
 
-def call_parallel(embeds_paths, label_path, parameters=None, max_workers=None, non_perm_parameters=None):
+def call_parallel(embeds_paths, label_path, parameters=None, max_workers=None, non_perm_parameters=None, wait_end=True):
     if non_perm_parameters is None:
         non_perm_parameters = {}
 
@@ -26,12 +26,11 @@ def call_parallel(embeds_paths, label_path, parameters=None, max_workers=None, n
     else:
         assert all(i in parameters.keys() for i in param_keys)
 
-    if "output_folder" not in parameters.keys():
+    if "output_folder" not in non_perm_parameters.keys():
         output_folder = [i for i in os.listdir("results/") if i.startswith("hyperparam_run")]
         output_folder = "results/hyperparam_run" + str(len(output_folder) + 1)
-        # output_folder = parameters.pop("output_folder", output_folder)
     else:
-        output_folder = parameters["output_folder"]
+        output_folder = non_perm_parameters["output_folder"]
     print(">> At folder", output_folder)
 
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -58,8 +57,10 @@ def call_parallel(embeds_paths, label_path, parameters=None, max_workers=None, n
                             f"-e {current_params['num_epochs']} -pt {current_params['patience']} "
                             f"-o {output_folder}")
                 futures.append(executor.submit(call_run, call_str))
-
-        wait(futures)
+        if wait_end:
+            wait(futures)
+        else:
+            executor.shutdown(False, cancel_futures=False)
 
 
 def call_siamese_triplets():
@@ -115,6 +116,15 @@ def call_offline():
 /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_py.npy
 /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_py.npy""".split("\n")
 
+    gb_java = """/home/user/Desktop/Triplet-net-keras/Test/revision/java_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_java.npy""".split("\n")
+
+    gb_php = """/home/user/Desktop/Triplet-net-keras/Test/revision/php_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_php.npy""".split("\n")
+
+    gb_py = """/home/user/Desktop/Triplet-net-keras/Test/revision/py_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_py.npy""".split("\n")
+
 #     java_embeds = """/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_java.npy
 # /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_java.npy
 # /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_java.npy
@@ -141,14 +151,43 @@ def call_offline():
     }
 
     java_labels_path = "data/raw/7500_smells_test_java.json"
-    call_parallel(java_embeds[:-1], java_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters)
+    call_parallel(gb_java, java_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
 
     php_labels_path = "data/raw/7500_smells_test_php.json"
-    call_parallel(php_embeds[:-1], php_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters)
+    call_parallel(gb_php, php_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
 
     py_labels_path = "data/raw/7500_smells_test_py.json"
-    call_parallel(py_embeds[:-1], py_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters)
+    call_parallel(gb_py, py_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+
+
+def call_combined():
+    original_embeds = [
+        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_bert_nli_mean_token_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_codebert_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_graphcodebert_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_graphcodebert_hidden_state.npy"
+    ]
+    triplet_embeds = [
+        "/home/user/Desktop/Triplet-net-keras/Test/embeds_nli_pooler_1500_1.npy",
+        "/home/user/Desktop/Triplet-net-keras/Test/embeds_codebert_pooler_1500_1.npy",
+        "/home/user/Desktop/Triplet-net-keras/Test/embeds_graphcodebert_pooler_1500_1.npy",
+        "/home/user/Desktop/Triplet-net-keras/Test/embeds_graphcodebert_1500_1.npy"
+    ]
+
+    parameters = {
+        "optimizer": ["Adam"],
+        "train_batch_size": [256],
+        "lr": [-4],
+    }
+
+    non_perm_parameters = {
+        "output_folder": "results/revision/v4"
+    }
+
+    label_path = "data/raw/7500_smells_test.json"
+    call_parallel(original_embeds, label_path, parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+    call_parallel(triplet_embeds, label_path, parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
 
 
 if __name__ == '__main__':
-    call_offline()
+    call_combined()

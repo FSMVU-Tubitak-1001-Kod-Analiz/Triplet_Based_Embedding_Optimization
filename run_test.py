@@ -12,6 +12,7 @@ def _build_smell_range(smell_str):
     ranges = smell_str.split(",")
     ranges = [int(i) for i in ranges]
     assert len(ranges) == 2 and ranges[0] < ranges[1]
+    return tuple(ranges)
 
 
 def _build_lr(lr_str):
