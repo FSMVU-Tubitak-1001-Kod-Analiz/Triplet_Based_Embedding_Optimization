@@ -162,10 +162,10 @@ def call_offline():
 
 def call_combined():
     original_embeds = [
-        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_bert_nli_mean_token_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_codebert_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_graphcodebert_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/7500_smells_graphcodebert_hidden_state.npy"
+        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_bert_nli_mean_token_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_codebert_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_graphcodebert_pooler_output.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_graphcodebert_hidden_state.npy"
     ]
     triplet_embeds = [
         "/home/user/Desktop/Triplet-net-keras/Test/embeds_nli_pooler_1500_1.npy",
@@ -181,7 +181,7 @@ def call_combined():
     }
 
     non_perm_parameters = {
-        "output_folder": "results/revision/v4"
+        "output_folder": "results/revision/v5"
     }
 
     label_path = "data/raw/7500_smells_test.json"
