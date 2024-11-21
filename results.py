@@ -224,7 +224,7 @@ def print_result(lh_result: Result, rh_result: Result, lh_title=None, rh_title=N
     return save_path
 
 
-def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_title=None, ax=None, save=False):
+def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_title=None, plot_suptitle=None, ax=None, save=False):
     def forward(a):
         return np.power(np.abs(a), 1 / 3)
 
@@ -289,7 +289,9 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
         sns.lineplot(lh_val_values, label=lh_title + " validation " + plot_title, ax=ax)
         sns.lineplot(rh_val_values, label=rh_title + " validation " + plot_title, ax=ax)
 
-    style(ax, fold_count_min, "Training " + plot_title.title() + " per Epoch")
+    if plot_suptitle is None:
+        plot_suptitle = "Training " + plot_title.title() + " per Epoch"
+    style(ax, fold_count_min, plot_suptitle)
 
     plt.subplots_adjust(left=0.05, right=0.96, top=0.96, bottom=0.05)
 
