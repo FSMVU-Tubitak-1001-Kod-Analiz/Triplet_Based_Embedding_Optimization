@@ -189,5 +189,21 @@ def call_combined():
     call_parallel(triplet_embeds, label_path, parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
 
 
+def call_hyperparam():
+    original_embeds = [
+        "/home/user/PycharmProjects/Model_Scratch/data/9000_smells_bert_nli_mean_token_pooler_output_test.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/9000_smells_codebert_pooler_output_test.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/9000_smells_graphcodebert_pooler_output_test.npy"
+    ]
+
+    gb_embeds = ["/home/user/PycharmProjects/Model_Scratch/data/9000_smells_graphcodebert_hidden_state_test.npy"]
+
+    label_path = "data/raw/9000_smells_test.json"
+
+    call_parallel(original_embeds, label_path, None, max_workers=90, wait_end=True)
+
+    call_parallel(gb_embeds, label_path, None, max_workers=6)
+
+
 if __name__ == '__main__':
-    call_combined()
+    call_hyperparam()
