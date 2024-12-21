@@ -64,19 +64,34 @@ def call_parallel(embeds_paths, label_path, parameters=None, max_workers=None, n
 
 
 def call_siamese_triplets():
-    embeds_folders = """/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_21_01_7500_smells_graphcodebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_21_43_7500_smells_bert_nli_mean_token_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_22_31_7500_smells_bert_nli_mean_token_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_22_45_7500_smells_graphcodebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_23_51_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_29_31_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_50_04_7500_smells_graphcodebert_pooler_output
-|/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_53_48_7500_smells_codebert_pooler_output
-/home/eislamoglu/PycharmProjects/siamese-triplet/results/13/triplet_2024_11_16__21_53_59_7500_smells_bert_nli_mean_token_pooler_output""".split("\n")
+    embeds_folders = """/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__17_37_00_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__17_39_24_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__17_53_16_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__18_44_45_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__18_53_24_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__19_01_49_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__20_57_50_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__21_33_32_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__21_39_24_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__21_54_33_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__22_02_08_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__22_04_03_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__22_17_34_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__22_28_38_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_04_34_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_08_23_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_16_39_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_17_56_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_24_50_9000_smells_bert_nli_mean_token_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_25_27_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_39_13_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_45_56_9000_smells_codebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_20__23_47_10_9000_smells_graphcodebert_pooler_output
+/home/eislamoglu/PycharmProjects/siamese-triplet/results/27/triplet_2024_12_21__00_07_20_9000_smells_codebert_pooler_output""".split("\n")
 
     embed_type = "test"
     embed_name = embed_type + "_embeds_triplet_output.npy"
-    label_path = f"/home/user/PycharmProjects/Model_Scratch/data/raw/7500_smells_{embed_type}.json"
+    label_path = f"/home/user/PycharmProjects/Model_Scratch/data/raw/9000_smells_{embed_type}.json"
 
     embeds_paths = []
     for i in embeds_folders:
@@ -88,57 +103,43 @@ def call_siamese_triplets():
         "lr": [-4],
     }
 
-    call_parallel(embeds_paths, label_path, parameters=parameters)
+    non_perm_params = {
+        "output_folder": "results/revision/v6_online"
+    }
+
+    call_parallel(embeds_paths, label_path, parameters=parameters, non_perm_parameters=non_perm_params, max_workers=24)
 
 
 def call_offline():
-    java_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision/java_bert_nli_mean_token_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/java_codebert_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/java_graphcodebert_pooler_output.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_java.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_java.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_java.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_java.npy""".split("\n")
+    java_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision2/java_bert_nli_mean_token_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/java_codebert_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/java_graphcodebert_pooler_output.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_bert_nli_mean_token_pooler_output_java.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_codebert_pooler_output_java.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_pooler_output_java.npy""".split("\n")
 
-    php_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision/php_bert_nli_mean_token_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/php_codebert_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/php_graphcodebert_pooler_output.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_php.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_php.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_php.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_php.npy""".split("\n")
+    php_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision2/php_bert_nli_mean_token_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/php_codebert_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/php_graphcodebert_pooler_output.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_bert_nli_mean_token_pooler_output_php.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_codebert_pooler_output_php.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_pooler_output_php.npy""".split("\n")
 
-    py_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision/py_bert_nli_mean_token_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/py_codebert_pooler_output.npy
-/home/user/Desktop/Triplet-net-keras/Test/revision/py_graphcodebert_pooler_output.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_py.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_py.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_py.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_py.npy""".split("\n")
+    py_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision2/python_bert_nli_mean_token_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/python_codebert_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/python_graphcodebert_pooler_output.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_bert_nli_mean_token_pooler_output_python.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_codebert_pooler_output_python.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_pooler_output_python.npy""".split("\n")
 
-    gb_java = """/home/user/Desktop/Triplet-net-keras/Test/revision/java_graphcodebert_hidden_state.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_java.npy""".split("\n")
+    gb_java = """/home/user/Desktop/Triplet-net-keras/Test/revision2/java_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_hidden_state_java.npy""".split("\n")
 
-    gb_php = """/home/user/Desktop/Triplet-net-keras/Test/revision/php_graphcodebert_hidden_state.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_php.npy""".split("\n")
+    gb_php = """/home/user/Desktop/Triplet-net-keras/Test/revision2/php_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_hidden_state_php.npy""".split("\n")
 
-    gb_py = """/home/user/Desktop/Triplet-net-keras/Test/revision/py_graphcodebert_hidden_state.npy
-/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_py.npy""".split("\n")
-
-#     java_embeds = """/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_java.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_java.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_java.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_java.npy""".split("\n")
-#
-#     php_embeds = """/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_php.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_php.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_php.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_php.npy""".split("\n")
-#
-#     py_embeds = """/home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_bert_nli_mean_token_pooler_output_py.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_codebert_pooler_output_py.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_pooler_output_py.npy
-# /home/user/PycharmProjects/Model_Scratch/data/revision/500_smells_graphcodebert_hidden_state_py.npy""".split("\n")
+    gb_py = """/home/user/Desktop/Triplet-net-keras/Test/revision2/python_graphcodebert_hidden_state.npy
+/home/user/PycharmProjects/Model_Scratch/data/revision_v2/9000_smells_graphcodebert_hidden_state_python.npy""".split("\n")
 
     parameters = {
         "optimizer": ["Adam"],
@@ -147,31 +148,31 @@ def call_offline():
     }
 
     non_perm_parameters = {
-        "output_folder": "results/revision/v2"
+        "output_folder": "results/revision/v7_offline"
     }
 
-    java_labels_path = "data/raw/7500_smells_test_java.json"
-    call_parallel(gb_java, java_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+    java_labels_path = "data/raw/9000_smells_test_java.json"
+    call_parallel(gb_java, java_labels_path, parameters=parameters, max_workers=1, non_perm_parameters=non_perm_parameters, wait_end=False)
 
-    php_labels_path = "data/raw/7500_smells_test_php.json"
-    call_parallel(gb_php, php_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+    php_labels_path = "data/raw/9000_smells_test_php.json"
+    call_parallel(gb_php, php_labels_path, parameters=parameters, max_workers=1, non_perm_parameters=non_perm_parameters, wait_end=False)
 
-    py_labels_path = "data/raw/7500_smells_test_py.json"
-    call_parallel(gb_py, py_labels_path, parameters=parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+    py_labels_path = "data/raw/9000_smells_test_python.json"
+    call_parallel(gb_py, py_labels_path, parameters=parameters, max_workers=1, non_perm_parameters=non_perm_parameters, wait_end=False)
 
 
 def call_combined():
-    original_embeds = [
-        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_bert_nli_mean_token_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_codebert_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_graphcodebert_pooler_output.npy",
-        "/home/user/PycharmProjects/Model_Scratch/data/1500_smells_graphcodebert_hidden_state.npy"
-    ]
-    triplet_embeds = [
-        "/home/user/Desktop/Triplet-net-keras/Test/embeds_nli_pooler_1500_1.npy",
-        "/home/user/Desktop/Triplet-net-keras/Test/embeds_codebert_pooler_1500_1.npy",
-        "/home/user/Desktop/Triplet-net-keras/Test/embeds_graphcodebert_pooler_1500_1.npy",
-        "/home/user/Desktop/Triplet-net-keras/Test/embeds_graphcodebert_1500_1.npy"
+    original_embeds = """/home/user/PycharmProjects/Model_Scratch/data/9000_smells_bert_nli_mean_token_pooler_output_test.npy
+/home/user/PycharmProjects/Model_Scratch/data/9000_smells_codebert_pooler_output_test.npy
+/home/user/PycharmProjects/Model_Scratch/data/9000_smells_graphcodebert_pooler_output_test.npy""".split("\n")
+
+    triplet_embeds = """/home/user/Desktop/Triplet-net-keras/Test/revision2/all_langs_bert_nli_mean_token_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/all_langs_codebert_pooler_output.npy
+/home/user/Desktop/Triplet-net-keras/Test/revision2/all_langs_graphcodebert_pooler_output.npy""".split("\n")
+
+    gb_embeds = [
+        "/home/user/Desktop/Triplet-net-keras/Test/revision2/all_langs_graphcodebert_hidden_state.npy",
+        "/home/user/PycharmProjects/Model_Scratch/data/9000_smells_graphcodebert_hidden_state_test.npy"
     ]
 
     parameters = {
@@ -181,12 +182,13 @@ def call_combined():
     }
 
     non_perm_parameters = {
-        "output_folder": "results/revision/v5"
+        "output_folder": "results/revision/v7_offline"
     }
 
-    label_path = "data/raw/7500_smells_test.json"
+    label_path = "data/raw/9000_smells_test.json"
     call_parallel(original_embeds, label_path, parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
     call_parallel(triplet_embeds, label_path, parameters, non_perm_parameters=non_perm_parameters, wait_end=False)
+    call_parallel(gb_embeds, label_path, parameters, max_workers=1, non_perm_parameters=non_perm_parameters, wait_end=False)
 
 
 def call_hyperparam():
@@ -206,4 +208,4 @@ def call_hyperparam():
 
 
 if __name__ == '__main__':
-    call_hyperparam()
+    call_combined()
