@@ -293,7 +293,7 @@ def plot_result(metric: Metric, do_val, lh_result, rh_result, lh_title=None, rh_
         plot_suptitle = "Training " + plot_title.title() + " per Epoch"
     style(ax, fold_count_min, plot_suptitle)
 
-    plt.subplots_adjust(left=0.05, right=0.96, top=0.96, bottom=0.05)
+    plt.subplots_adjust(left=0.06, right=0.94, top=0.94, bottom=0.06)
 
     if save:
         now = code_utils.get_now()
